@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import re
 import time
@@ -9,13 +10,39 @@ import schedule
 import telegram
 import vk_api
 
-from flow.database import init_db
-from flow.types import ConfChannel
-
 from .config import conf, instance_path
-from .log import CustomClickGroup, logger
+from .database import db, init_db
 from .telegram import publish
+from .types import ConfChannel
 from .vk import fetch, get_vk
+
+
+def patch_echo():
+    """Custom `click.echo` to add logging all messages"""
+    old_echo = click.echo  # type: ignore
+
+    def custom_click_echo(
+        message: Optional[str], *args: Optional[Any], **kwargs: Optional[Any]
+    ):
+        logging.info(message)
+        return old_echo(message=message, *args, **kwargs)
+
+    click.echo = custom_click_echo
+
+
+patch_echo()
+
+
+class CustomClickGroup(click.Group):
+    """Custom `click.Group` class to add logging all exceptions"""
+
+    def __call__(self, *args: Optional[Any], **kwargs: Optional[Any]) -> Optional[Any]:
+        try:
+            return self.main(*args, **kwargs)  # type: ignore
+        except Exception as e:
+            logging.error(e, exc_info=True)
+            db.close()
+            raise e
 
 
 @click.group(cls=CustomClickGroup)
@@ -52,7 +79,7 @@ def publish_command(channel: Optional[str]):
 
 
 def run(channel: str):
-    logger.info(f'Executing repeated task for channel: "{channel}"')
+    click.echo(f'Executing repeated task for channel: "{channel}"')
     fetch(channel)
     publish(channel)
 
