@@ -94,7 +94,6 @@ def add_channel_command():
     if not vk_group_id:
         return
 
-    # TODO: Check if config already contain it
     # TODO: Ask for NAME first
     # TODO: Add instructions about telegram channel name: also need to send one message
     # TODO: Unificate all names (config + db)
@@ -121,9 +120,12 @@ def add_channel_command():
         return
 
     name = None
+    existing_channel_names = [d["name"] for d in conf.channels]
     for i in range(5):  # type: ignore
         name = click.prompt('Enter name, for example, "cute_dogs"')
-        if len(re.findall(r"[^a-z0-9_]+", name)) > 0:
+        if name in existing_channel_names:
+            click.echo("Channel with this name already exist. Try again.")
+        elif len(re.findall(r"[^a-z0-9_]+", name)) > 0:
             click.echo("Can except only this symbols: a-z, 0-9, _. Try again.")
         else:
             break
