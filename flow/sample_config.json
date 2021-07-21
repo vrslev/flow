@@ -1,0 +1,14 @@
+{
+  "channels": [
+    {
+      "name": "",
+      "tg_chat_id": 0,
+      "vk_group_id": 0
+    }
+  ],
+  "database": "flow.sqlite",
+  "telegram_bot_token": "",
+  "telegram_bot_username": "",
+  "vk_app_id": 0,
+  "vk_app_service_token": ""
+}
