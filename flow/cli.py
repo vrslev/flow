@@ -70,9 +70,23 @@ def run_command(channel: str):
 
 @cli.command("add-channel")
 def add_channel_command():
+
+    if not click.confirm(
+        f"""To add new channel you need to:
+    1. Add your bot @{conf.telegram_bot_username} to Telegram channel 
+       in which you're planning to repost posts as Administrator
+
+    2. Send random message in this channel.
+
+If you have already done that, than hit 'Enter'.""",
+        default=True,
+    ):
+        return
     vk_group_id: Optional[int] = None
     for i in range(5):  # type: ignore
-        group_url = click.prompt("Enter source VK Group URL")
+        group_url = click.prompt(
+            "Enter link to source VK group, for example, 'https://vk.com/vk'"
+        )
         screen_name = re.findall(r"vk.com/([^/]+)", group_url)
         if screen_name:
             screen_name = screen_name[0]
@@ -87,19 +101,16 @@ def add_channel_command():
                 break
             except vk_api.exceptions.ApiError as e:
                 if e.code == 100:
-                    click.echo(f'Group with screen name "{screen_name}" does not exist')
+                    click.echo(f"Group with screen name '{screen_name}' does not exist")
         else:
             click.echo("Not valid VK Group URL. Try again.")
 
     if not vk_group_id:
         return
 
-    # TODO: Ask for NAME first
-    # TODO: Add instructions about telegram channel name: also need to send one message
-    # TODO: Unificate all names (config + db)
     tg_chat_id = None
     for i in range(5):  # type: ignore
-        channel_name = click.prompt("Enter target Telegram channel name", type=str)  # type: ignore
+        channel_name = click.prompt("""Enter target Telegram channel name, for example, 'Telegram News'""", type=str)  # type: ignore
         bot = telegram.Bot(conf.telegram_bot_token)
         updates = bot.get_updates()
         for d in updates:
@@ -109,11 +120,11 @@ def add_channel_command():
                 break
 
         if tg_chat_id:
-            click.echo(f'Got channel: "{channel_name}"')
+            click.echo(f"Got channel: '{channel_name}'")
             break
         else:
             click.echo(
-                f"Did not get channel. Make sure you did everything right and try again."
+                f"Couldn't get the channel. Make sure you did everything right and try again."
             )
 
     if not tg_chat_id:
