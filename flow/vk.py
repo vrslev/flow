@@ -52,10 +52,14 @@ def parse_wall(wall: dict[str, Any], channel: ConfChannel):
         photos = []
         video_in_post = False
         for att in d.get("attachments", []):
-            if att["type"] != "photo":  # TODO: Accept videos
+            if att["type"] != "photo":  # TODO: Accept videos and links
                 if att["type"] == "video":
                     video_in_post = True
-                continue  # TODO: Log this
+                click.echo(
+                    "Skipped attachment with type different from 'photo': "
+                    f"'{att['type']}' (group: {d['owner_id']}, post: {d['id']})"
+                )
+                continue
 
             sizes: dict[str, Union[str, int]] = {}
             for s in att["photo"]["sizes"]:
@@ -67,11 +71,10 @@ def parse_wall(wall: dict[str, Any], channel: ConfChannel):
             max_resolution = max(sizes.keys())
             photos.append(sizes[max_resolution])
 
-        post["photos"] = json.dumps(photos)
-
         if video_in_post and not post["photos"]:  # TODO: Test this; upd: not working!
             continue
 
+        post["photos"] = json.dumps(photos)
         posts.append(post)
 
     return posts
