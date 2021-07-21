@@ -163,8 +163,12 @@ class CustomBot(telegram.Bot):
 
 # TODO: Log or click.echo?
 # TODO: Make Conf class to except all types stuff
-def publish_post(bot: CustomBot, post: Post):
-    content = format_text(post["content"])
+def publish_post(
+    bot: CustomBot, post: Post, format: bool = True
+):  # TODO: Add option in config `format`=bool
+    content = post["content"]
+    if format:
+        content = format_text(content)
 
     photos: str = post["photos"]
     photos = json.loads(photos)
@@ -190,7 +194,9 @@ def publish_post(bot: CustomBot, post: Post):
 def publish(channel_name: str):
     channel = get_channel(channel_name)
 
-    posts = get_unpublished_posts_from_db(channel["name"])
+    posts = get_unpublished_posts_from_db(
+        channel["name"]
+    )  # TODO: Allow setting limit on posts
     click.echo(f"{len(posts)} posts to publish")
     if len(posts) > 0:
         bot = CustomBot(token=conf.telegram_bot_token, chat_id=channel["tg_chat_id"])
