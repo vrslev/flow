@@ -2,9 +2,11 @@ import logging
 import os
 from typing import Any, Optional
 
+# TODO: Relocate all things related to cli to `cli.py`
 import click
 
 from .config import instance_path
+from .database import db
 
 logging.basicConfig(
     filename=os.path.join(instance_path, "news.log"),
@@ -38,4 +40,5 @@ class CustomClickGroup(click.Group):
             return self.main(*args, **kwargs)  # type: ignore
         except Exception as e:
             logger.error(e, exc_info=True)
+            db.close()
             raise e
