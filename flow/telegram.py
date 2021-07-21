@@ -52,7 +52,6 @@ def mark_post_as_published(vk_post_id: int, sent_posts: list[Message]):
     db.commit()
 
 
-# TODO: Connect to telegram bot logger
 class CustomBot(telegram.Bot):
     def __init__(
         self,
@@ -71,7 +70,7 @@ class CustomBot(telegram.Bot):
 
         try:
             return send()
-        except telegram.error.RetryAfter as e:  # TODO: Not working
+        except telegram.error.RetryAfter as e:
             seconds: float = e.retry_after + 2
             click.echo(
                 f"{telegram.error.RetryAfter.__name__}. "
@@ -117,13 +116,14 @@ class CustomBot(telegram.Bot):
             )
 
         caption: str = kwargs.pop("caption")
-
         messages: list[Message] = []
-        if len(caption) <= MAX_CAPTION_LENGTH:  # Photo with text
+
+        if len(caption) <= MAX_CAPTION_LENGTH:
             r = send(caption=caption)
             messages.append(r)
             click.echo("New post with photo")
-        else:  # Text and photo in next msg
+
+        else:
             messages += self.send_message(text=caption)
             r = send()
             messages.append(r)
@@ -145,7 +145,7 @@ class CustomBot(telegram.Bot):
 
         try:
             r += send()
-            sleep(10)  # need this to prevent flood error
+            sleep(10)  # prevent flood error
         except telegram.error.TimedOut:
             sleep(1)
         except telegram.error.BadRequest as e:
@@ -161,8 +161,6 @@ class CustomBot(telegram.Bot):
         return r
 
 
-# TODO: Log or click.echo?
-# TODO: Make Conf class to except all types stuff
 def publish_post(
     bot: CustomBot, post: Post, format: bool = True
 ):  # TODO: Add option in config `format`=bool
@@ -178,7 +176,7 @@ def publish_post(
     elif photos:
         if len(photos) == 1:
             r = bot.send_photo(photo=photos[0], caption=content)
-        else:  # Text and photo gallery in next msg
+        else:
             r = bot.send_media_group(
                 media=[InputMediaPhoto(media=p) for p in photos],
                 disable_notification=True,  # prevent double notification
@@ -196,10 +194,10 @@ def publish(channel_name: str):
 
     posts = get_unpublished_posts_from_db(
         channel["name"]
-    )  # TODO: Allow setting limit on posts
+    )  # TODO: Allow setting limit on number of posts to publish
     click.echo(f"{len(posts)} posts to publish")
     if len(posts) > 0:
-        bot = CustomBot(token=conf.telegram_bot_token, chat_id=channel["tg_chat_id"])
+        bot = CustomBot(token=conf.tg_bot_token, chat_id=channel["tg_chat_id"])
         click.echo("Publishing...")
         for d in posts:
             publish_post(bot, d)
@@ -210,5 +208,5 @@ def publish(channel_name: str):
 
 
 def add_channel(name: str):
-    bot = telegram.Bot(token=conf.telegram_bot_token)
+    bot = telegram.Bot(token=conf.tg_bot_token)
     print(bot.get_updates())

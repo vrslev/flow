@@ -7,8 +7,8 @@
     }
   ],
   "database": "flow.sqlite",
-  "telegram_bot_token": "",
-  "telegram_bot_username": "",
+  "tg_bot_token": "",
+  "tg_bot_username": "",
   "vk_app_id": 0,
   "vk_app_service_token": ""
 }

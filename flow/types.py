@@ -29,7 +29,7 @@ class ConfChannel(TypedDict):
 class Conf:
     channels: list[ConfChannel]
     database: str
-    telegram_bot_token: str
-    telegram_bot_username: str
+    tg_bot_token: str
+    tg_bot_username: str
     vk_app_id: int
     vk_app_service_token: str

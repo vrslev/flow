@@ -100,7 +100,7 @@ def add_channel_command():
 
     if not click.confirm(
         f"""To add new channel you need to:
-    1. Add your bot @{conf.telegram_bot_username} to Telegram channel 
+    1. Add your bot @{conf.tg_bot_username} to Telegram channel 
        in which you're planning to repost posts as Administrator
 
     2. Send random message in this channel.
@@ -138,7 +138,7 @@ If you have already done that, than hit 'Enter'.""",
     tg_chat_id = None
     for i in range(5):  # type: ignore
         channel_name = click.prompt("""Enter target Telegram channel name, for example, 'Telegram News'""", type=str)  # type: ignore
-        bot = telegram.Bot(conf.telegram_bot_token)
+        bot = telegram.Bot(conf.tg_bot_token)
         updates = bot.get_updates()
         for d in updates:
             chat = d.to_dict().get("channel_post", {}).get("chat", None)

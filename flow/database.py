@@ -52,7 +52,7 @@ db = Database()
 def init_db():
     global db
 
-    if not os.path.exists(db_path):  # TODO: Not working
+    if not os.path.exists(db_path):
         open(db_path, "a+")
     else:
         tables = db.execute(
@@ -77,7 +77,7 @@ def init_db():
                 else:
                     msg = "Wrong username, try again"
                 value = click.prompt(msg)
-                if value == conf.telegram_bot_username:
+                if value == conf.tg_bot_username:
                     verified = True
                     break
 
