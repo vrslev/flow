@@ -194,9 +194,7 @@ def publish_post(bot: CustomBot, post: Post, format: bool = True):
 def publish(channel_name: str, limit: int):
     channel = get_channel(channel_name)
 
-    posts = get_unpublished_posts_from_db(
-        channel["name"], limit
-    )  # TODO: Allow setting limit on number of posts to publish
+    posts = get_unpublished_posts_from_db(channel["name"], limit)
     click.echo(f"{len(posts)} posts to publish")
     if len(posts) > 0:
         bot = CustomBot(token=conf.tg_bot_token, chat_id=channel["tg_chat_id"])

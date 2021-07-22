@@ -71,7 +71,7 @@ def parse_wall(wall: dict[str, Any], channel: ConfChannel):
             max_resolution = max(sizes.keys())
             photos.append(sizes[max_resolution])
 
-        if video_in_post and not post["photos"]:  # TODO: Test this; upd: not working!
+        if video_in_post and not post["photos"]:
             continue
 
         post["photos"] = json.dumps(photos)
@@ -95,7 +95,7 @@ def add_posts_to_db(posts: list[Post]):
     for d in posts:
         keys_to_delete: list[Any] = []
         for k, v in d.items():
-            if not k or not v:
+            if k is None or v is None:
                 keys_to_delete.append(k)
         for k in keys_to_delete:
             d.pop(k)
