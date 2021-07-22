@@ -3,11 +3,27 @@ import os
 import pathlib
 from typing import Any, Callable
 
+import click
+
 from .types import Conf
 
 
 class WrongConfigError(ValueError):
     ...
+
+
+def get_instance_path():
+    instance_path = os.environ.get("FLOW_INSTANCE_PATH")
+    if not instance_path:
+        raise click.UsageError(
+            'You did not provide the "FLOW_INSTANCE_PATH" environment variable.'
+        )
+    elif os.path.exists(instance_path) and os.path.isabs(instance_path):
+        return instance_path
+    else:
+        raise click.UsageError(
+            'Incorrect path set in "FLOW_INSTANCE_PATH" environment variable.'
+        )
 
 
 def get_config():
@@ -25,11 +41,6 @@ def get_config():
     with open(fpath) as f:
         conf_dict = json.load(f)
         return Conf(**conf_dict)
-
-
-cur_path = pathlib.Path(__file__).parent
-instance_path = os.path.join(cur_path.parent, "instance")
-conf = get_config()
 
 
 def config_required(f: Callable[..., Any]) -> Callable[..., Any]:
@@ -51,3 +62,8 @@ def get_channel(name: str):
         if d["name"] == name:
             return d
     raise ValueError(f'No such channel: "{name}"')
+
+
+cur_path = pathlib.Path(__file__).parent
+instance_path = get_instance_path()
+conf = get_config()
