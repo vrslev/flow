@@ -25,11 +25,8 @@ class Database:
             )
             self.con.row_factory = dict_factory
 
-    def execute(self, sql: str, parameters: Any = None):
+    def execute(self, *args: Any):
         self.connect()
-        args = [sql]
-        if parameters:
-            args.append(parameters)
         return self.con.execute(*args)
 
     def commit(self):
