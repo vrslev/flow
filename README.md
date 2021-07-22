@@ -29,7 +29,7 @@ export FLOW_INSTANCE_PATH=/Users/lev/flow
 
 In future, add this in your `.bashprofile` or `.zshrc`.
 
-6. Run `flow init-db` to initialize database and config file.
+6. Run `flow` to initialize database, config and log files.
 7. [Create a VK App](https://vk.com/apps?act=manage).
 8. Open `config.json` in directory you created and fill `vk_app_id` and `vk_app_service_token`.
 9. [Create Telegram bot](https://t.me/BotFather).

@@ -52,7 +52,8 @@ def cli():
 
 @cli.command("init-db")
 def init_db_command():
-    return init_db()
+    init_db()
+    click.echo("Database initialized.")
 
 
 def resolve_channels(channel: Optional[str]) -> list[str]:
@@ -71,6 +72,7 @@ def fetch_command(channel: Optional[str]):
         fetch(d)
 
 
+# TODO: Add interval option
 @cli.command("publish")
 @click.argument("channel", required=False)
 @click.option("--limit", "-l", default=0)
@@ -101,7 +103,7 @@ def add_channel_command():
 
     if not click.confirm(
         f"""To add new channel you need to:
-    1. Add your bot (@{conf.tg_bot_username}) to Telegram channel 
+    1. Add your bot (@{conf.tg_bot_username}) to Telegram channel
        in which you're planning to repost posts as Administrator
 
     2. Send any message in this channel.

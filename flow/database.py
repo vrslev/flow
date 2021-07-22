@@ -84,4 +84,3 @@ def init_db():
     db = Database()
     with open(os.path.join(cur_path, "schema.sql")) as f:
         db.executescript(f.read())
-    click.echo("Database initialised.")

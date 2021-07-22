@@ -2,6 +2,7 @@ import logging
 import os
 
 from .config import instance_path
+from .database import db_path, init_db
 
 __version__ = "0.0.1"
 
@@ -13,6 +14,9 @@ __email__ = "mail@vrslev.com"
 
 __license__ = "MIT"
 
+
+if not os.path.exists(db_path):
+    init_db()
 
 logging.basicConfig(
     filename=os.path.join(instance_path, "flow.log"),
