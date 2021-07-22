@@ -1,0 +1,11 @@
+include MANIFEST.in
+include LICENSE
+
+include *.md *.yaml *.toml
+
+recursive-include flow *.json
+recursive-include flow *.sql
+recursive-include instance
+recursive-exclude tests *.pyc
+recursive-exclude instance
+recursive-exclude venv

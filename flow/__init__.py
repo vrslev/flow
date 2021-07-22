@@ -1,11 +1,18 @@
-# TODO: Write readme
-
-__version__ = "0.0.1"
-
 import logging
 import os
 
 from .config import instance_path
+
+__version__ = "0.0.1"
+
+__description__ = "CLI for reposting from VK to Telegram"
+__url__ = "https://github.com/vrslev/flow"
+
+__author__ = "Lev Vereshchagin"
+__email__ = "mail@vrslev.com"
+
+__license__ = "MIT"
+
 
 logging.basicConfig(
     filename=os.path.join(instance_path, "flow.log"),
