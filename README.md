@@ -1,17 +1,27 @@
+<!-- TODO: Add russian -->
+
 # Flow
 
 Simple command line tool for reposting from VK Group to Telegram channel. Uses official APIs.
 
-## Installing
+## Setup
 
-1. Install this package:
+1. Make sure you have Python 3.9 onboard.
+2. Create virtualenv if you want:
+
+```zsh
+mkdir flow
+python3 -m pip venv venv
+```
+
+3. Install this package:
 
 ```zsh
 pip install https://github.com/vrslev/flow.git
 ```
 
-2. Create `instance` directory where database, config and log will live.
-3. Export absolute path to this directory to `FLOW_INSTANCE_PATH` in your shell, for example:
+4. Create `instance` directory where database, config and log will live.
+5. Export absolute path to this directory to `FLOW_INSTANCE_PATH` in your shell, for example:
 
 ```zsh
 export FLOW_INSTANCE_PATH=/Users/lev/flow
@@ -19,12 +29,12 @@ export FLOW_INSTANCE_PATH=/Users/lev/flow
 
 In future, add this in your `.bashprofile` or `.zshrc`.
 
-4. Next, run `flow init-db` to initialize database and config file.
-5. [Create a VK App](https://vk.com/apps?act=manage).
-6. Go to `config.json` in directory you created and fill `vk_app_id` and `vk_app_service_token`.
-7. [Create Telegram bot](https://t.me/BotFather).
-8. Fill `tg_bot_username` and `tg_bot_token` in `config.json`.
-9. Run `flow add-channel` and follow instructions in order to add new channel.
+6. Run `flow init-db` to initialize database and config file.
+7. [Create a VK App](https://vk.com/apps?act=manage).
+8. Open `config.json` in directory you created and fill `vk_app_id` and `vk_app_service_token`.
+9. [Create Telegram bot](https://t.me/BotFather).
+10. Fill `tg_bot_username` and `tg_bot_token` in `config.json`.
+11. Run `flow add-channel` and follow instructions in order to add new channel.
 
 Installation is complete!
 
