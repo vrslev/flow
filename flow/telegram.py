@@ -16,6 +16,7 @@ from .format import format_text
 from .types import Post
 
 
+# TODO: Sort by date
 def get_unpublished_posts_from_db(channel_name: str, limit: int):
     query = """
         SELECT * FROM post
@@ -64,7 +65,7 @@ class CustomBot(telegram.Bot):
     ):
         super().__init__(*args, **kwargs)
         self.chat_id = chat_id
-        self.parse_mode = parse_mode or telegram.ParseMode.HTML
+        self.parse_mode = parse_mode or telegram.ParseMode.MARKDOWN
 
     def _message(self, *args: Any, **kwargs: Optional[Any]):  # type: ignore
         def send():

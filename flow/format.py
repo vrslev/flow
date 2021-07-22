@@ -74,9 +74,9 @@ def make_header(text: str):
         r"(^[\w ,]+(%s))" % symbols,
         flags=re.UNICODE,
     )
+    new_text = re.sub(regex, r"*\g<1>*\n\n", text)
 
-    new_text = re.sub(regex, r"<b>\g<1></b>\n\n", text)
-    new_text = new_text.replace("\n</b>", "</b>")
+    new_text = new_text.replace("\n*", "*")
     if new_text == text:
         new_text = re.sub(rf"(^[^\w]+[^\n]+?[^\w]+?)\n", r"\g<1>\n", text)
 
@@ -94,7 +94,7 @@ def format_internal_vk_links(text: str):
         for user_id, username in match:
             text = text.replace(
                 f"[{user_id}|{username}]",
-                f'<a href="https://vk.com/{user_id}">{username}</a>',
+                f"[{username}](https://vk.com/{user_id})",
             )
     return text
 
