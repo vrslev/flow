@@ -17,18 +17,16 @@ from .types import Post
 
 
 def get_unpublished_posts_from_db(channel_name: str, limit: int):
-    limit_text = f"LIMIT {int(limit)}" if limit > 0 else ""
-
-    # TODO: Fix security
-    posts: list[Post] = db.execute(  # nosec
-        f"""
+    query = """
         SELECT * FROM post
         WHERE is_published = 0
         AND channel_name = ?
-        {limit_text}
-    """,
-        (channel_name,),
-    ).fetchall()
+    """
+    params = [channel_name]
+    if limit:
+        query += "\nLIMIT "
+        params.append(str(limit))
+    posts: list[Post] = db.execute(query, params).fetchall()
     return posts
 
 

@@ -81,12 +81,14 @@ def parse_wall(wall: dict[str, Any], channel: ConfChannel):
 
 
 def add_posts_to_db(posts: list[Post]):
-    # TODO: Fix security
-    exist = db.execute(  # nosec
-        f"""
+    query = """
         SELECT vk_post_id FROM post
-        WHERE vk_post_id IN ({','.join('?' * len(posts))})
-    """,
+        WHERE vk_post_id IN (
+    """
+    query += ",".join("?" * len(posts)) + ")"
+
+    exist = db.execute(
+        query,
         [d["vk_post_id"] for d in posts],
     ).fetchall()
     exist = [d["vk_post_id"] for d in exist]
@@ -103,14 +105,17 @@ def add_posts_to_db(posts: list[Post]):
             continue
         else:
             count += 1
-        # TODO: Fix security
-        db.execute(  # nosec
-            f"""
-            INSERT INTO post (
-                {','.join(d.keys())}
-            ) VALUES ({','.join([f"'{d}'" for d in d.values()])})
-        """
+
+        query = "".join(
+            [
+                "INSERT INTO post (",
+                ",".join(d.keys()),
+                ") VALUES (",
+                ",".join("?" * len(d)),
+                ")",
+            ]
         )
+        db.execute(query, list(d.values()))
 
     click.echo(f"{count} new posts")
     db.commit()
