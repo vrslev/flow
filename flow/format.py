@@ -1,7 +1,7 @@
 import re
 from typing import Optional
 
-emoji = "\U0001F600-\U0001F64F\U0001F300-\U0001F5FF\U0001F680-\U0001F6FF\U0001F1E0-\U0001F1FF"  # TODO: Not working
+from emoji import unicode_codes
 
 
 def format_text(text: Optional[str]):
@@ -9,15 +9,15 @@ def format_text(text: Optional[str]):
         return
 
     text = remove_multiple_line_breakers(text)
-    text = remove_space_in_new_line(text)
-    text = remove_multiple_spaces(text)
-    text = remove_multiple_punctuation_marks(text)
     text = fix_quotes(text)
     text = fix_dash(text)
+    text = remove_multiple_punctuation_marks(text)
     text = fix_spaces_near_punctuation_marks(text)
     text = make_header(text)
     text = remove_multiple_line_breakers(text)
     text = format_internal_vk_links(text)
+    text = remove_multiple_spaces(text)
+    text = remove_space_in_new_line(text)
     text = remove_spaces_in_start_and_end(text)
     return text
 
@@ -58,18 +58,28 @@ def fix_spaces_near_punctuation_marks(text: str):
     return text
 
 
+def get_emoji_regexp():
+    # Taken from `emoji`. Their version compiles pattern, this does not
+    emojis = sorted(unicode_codes.EMOJI_UNICODE["en"].values(), key=len, reverse=True)
+    pattern = "(" + "|".join(re.escape(u) for u in emojis) + ")"
+    return pattern
+
+
 def make_header(text: str):
     if "\n" not in text:
         return text
-    symbols = rf"\.\.\.|[\n\.!\?]|[{emoji}]+"
+
+    symbols = r"\.\.\.|[\n\.!\?]|[%s]+" % get_emoji_regexp()
     regex = re.compile(
-        rf"(^[\w ,]+({symbols}))",
+        r"(^[\w ,]+(%s))" % symbols,
         flags=re.UNICODE,
     )
+
     new_text = re.sub(regex, r"<b>\g<1></b>\n\n", text)
     new_text = new_text.replace("\n</b>", "</b>")
     if new_text == text:
         new_text = re.sub(rf"(^[^\w]+[^\n]+?[^\w]+?)\n", r"\g<1>\n", text)
+
     return new_text
 
 
