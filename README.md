@@ -11,20 +11,22 @@ Simple command line tool for reposting from VK Group to Telegram channel. Uses o
 
 ```zsh
 mkdir flow
-python3 -m pip venv venv
+cd flow
+python3 -m venv venv
+source venv/bin/activate
 ```
 
 3. Install this package:
 
 ```zsh
-pip install https://github.com/vrslev/flow.git
+pip install git+https://github.com/vrslev/flow.git
 ```
 
 4. Create `instance` directory where database, config and log will live.
 5. Export absolute path to this directory to `FLOW_INSTANCE_PATH` in your shell, for example:
 
 ```zsh
-export FLOW_INSTANCE_PATH=/Users/lev/flow
+export FLOW_INSTANCE_PATH=/home/lev/flow/instance
 ```
 
 In future, add this in your `.bashprofile` or `.zshrc`.
