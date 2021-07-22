@@ -50,7 +50,7 @@ def cli():
     ...
 
 
-@cli.command("init-db")
+@cli.command("init-db", short_help="Reinitialize database. Careful, it will be erased!")
 def init_db_command():
     init_db()
     click.echo("Database initialized.")
@@ -65,15 +65,14 @@ def resolve_channels(channel: Optional[str]) -> list[str]:
         return [channel]
 
 
-@cli.command("fetch")
+@cli.command("fetch", short_help="Fetch latest 20 posts from VK group feed.")
 @click.argument("channel", required=False)
 def fetch_command(channel: Optional[str]):
     for d in resolve_channels(channel):
         fetch(d)
 
 
-# TODO: Add interval option
-@cli.command("publish")
+@cli.command("publish", short_help="Publish posts that not published yet.")
 @click.argument("channel", required=False)
 @click.option("--limit", "-l", default=0)
 def publish_command(channel: Optional[str], limit: int):
@@ -87,30 +86,30 @@ def run(channel: str):
     publish(channel)
 
 
-@cli.command("run")
+@cli.command("run", short_help="Run 'fetch' and 'publish' perodically.")
 @click.argument("channel", required=False)
-def run_command(channel: str):
+@click.option("--interval", "-i", default=60, help="Interval in seconds. Default: 60s.")
+def run_command(channel: str, interval: int):
     click.echo("Started running.")
     for d in resolve_channels(channel):
-        schedule.every(60).seconds.do(run, d)
+        schedule.every(interval).seconds.do(run, d)
     while True:
         schedule.run_pending()
-        time.sleep(10)
+        time.sleep(interval / 6)  # TODO: Dig in this
 
 
-@cli.command("add-channel")
-def add_channel_command():
-
-    if not click.confirm(
-        f"""To add new channel you need to:
+add_channel_instructions = f"""To add new channel you need to:
     1. Add your bot (@{conf.tg_bot_username}) to Telegram channel
        in which you're planning to repost posts as Administrator
 
     2. Send any message in this channel.
 
-If you've done that, than hit 'Enter'.""",
-        default=True,
-    ):
+If you've done that, than hit 'Enter'."""
+
+
+@cli.command("add-channel", short_help="Add new channel (source + target).")
+def add_channel_command():
+    if not click.confirm(add_channel_instructions, default=True):
         return
 
     vk_group_id: Optional[int] = None
@@ -201,4 +200,8 @@ If you've done that, than hit 'Enter'.""",
         json.dump(conf_content, f, sort_keys=True, indent=2)
 
 
-cli.add_command(add_channel_command)
+@cli.command("list-channels", short_help="Show channels in 'config.json'.")
+def list_channels_command():
+    channel_names = [d["name"] for d in conf.channels]
+    channel_names.sort()
+    click.echo("\n".join(channel_names))

@@ -44,4 +44,4 @@ Installation is complete!
 
 `flow publish` sends fetched posts in target Telegram channel. You can limit of posts with `--limit` option.
 
-`flow run` executes `flow fetch` and then `flow publish` every 1 minute.
+`flow run` executes `flow fetch` and then `flow publish` periodically. Use `--interval` to set how often this will happen.
