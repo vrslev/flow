@@ -120,13 +120,14 @@ class CustomBot(telegram.Bot):
         caption: str = kwargs.pop("caption")
         messages: list[Message] = []
 
-        if len(caption) <= MAX_CAPTION_LENGTH:
+        if caption and len(caption) <= MAX_CAPTION_LENGTH:
             r = send(caption=caption)
             messages.append(r)
             click.echo("New post with photo")
 
         else:
-            messages += self.send_message(text=caption)
+            if caption:
+                messages += self.send_message(text=caption)
             r = send()
             messages.append(r)
             click.echo(f"New photo")
@@ -180,6 +181,7 @@ def publish_post(bot: CustomBot, post: Post, format: bool = True):
             r = bot.send_media_group(
                 media=[InputMediaPhoto(media=p) for p in photos],
                 disable_notification=True,  # prevent double notification
+                text=content,
                 timeout=60,
             )
     else:
