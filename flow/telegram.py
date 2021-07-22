@@ -16,12 +16,12 @@ from .format import format_text
 from .types import Post
 
 
-# TODO: Sort by date
 def get_unpublished_posts_from_db(channel_name: str, limit: int):
     query = """
         SELECT * FROM post
         WHERE is_published = 0
         AND channel_name = ?
+        ORDER BY vk_post_date DESC
     """
     params = [channel_name]
     if limit:
@@ -102,7 +102,7 @@ class CustomBot(telegram.Bot):
             raise ValueError("No text provided")
 
         messages: list[Message] = []
-        for chunk in wrap(content, MAX_MESSAGE_LENGTH):
+        for chunk in wrap(content, MAX_MESSAGE_LENGTH, replace_whitespace=False):
             r = send(chunk)
             messages.append(r)
             click.echo(f"New post: {r.text[:50]}")

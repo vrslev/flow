@@ -23,10 +23,7 @@ def format_text(text: Optional[str]):
 
 
 def remove_multiple_line_breakers(text: str):
-    if len([d for d in re.split(r"\n+\s?", text) if d]) < 3:
-        return re.sub(r"\n+", "\n", text)
-    else:
-        return re.sub(r"(\n\n)[\n]+", r"\g<1>", text)
+    return re.sub(r"(\n\n)[\n]+", r"\g<1>", text)
 
 
 def remove_space_in_new_line(text: str):
