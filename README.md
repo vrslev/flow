@@ -44,6 +44,6 @@ Installation is complete!
 
 `flow fetch` gets new posts from source VK group.
 
-`flow publish` sends fetched posts in target Telegram channel. You can limit of posts with `--limit` option and set interval between posts with `--post-every`.
+`flow publish` sends fetched posts in target Telegram channel. You can limit of posts with `--limit` option and set interval between posts with `--post-frequency`.
 
-`flow run` executes `flow fetch` and then `flow publish` periodically. Use `--interval` to set how often this will happen and `--post-every` to set interval between posts.
+`flow run` executes `flow fetch` and then `flow publish` periodically. Use `--fetch-interval` to set how often this will happen and `--post-frequency` to set interval between posts.

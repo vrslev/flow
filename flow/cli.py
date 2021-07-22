@@ -75,27 +75,35 @@ def fetch_command(channel: Optional[str]):
 @cli.command("publish", short_help="Publish posts that not published yet.")
 @click.argument("channel", required=False)
 @click.option("--limit", "-l", default=0)
-@click.option("--post-every", default=2, help="Interval between posts. Default: 2s.")
-def publish_command(channel: Optional[str], limit: int, post_every: int):
+@click.option(
+    "--post-frequency", default=2, help="Interval between posts. Default: 2s."
+)  # Rename to post-frequency
+def publish_command(channel: Optional[str], limit: int, post_frequency: int):
     for d in resolve_channels(channel):
-        publish(d, limit=limit, post_every=post_every)
+        publish(d, limit=limit, post_frequency=post_frequency)
 
 
-def run(channel: str, post_every: int):
+def run(channel: str, post_frequency: int):
     click.echo(f'Executing repeated task for channel: "{channel}"')
     fetch(channel)
-    publish(channel, post_every=post_every)
+    publish(channel, post_frequency=post_frequency)
 
 
 @cli.command("run", short_help="Run 'fetch' and 'publish' perodically.")
 @click.argument("channel", required=False)
-@click.option("--interval", "-i", default=60, help="Interval in seconds. Default: 60s.")
-@click.option("--post-every", default=2, help="Interval between posts. Default: 2s.")
-def run_command(channel: str, interval: int, post_every: int):
+@click.option(
+    "--fetch-interval",
+    default=60,
+    help="Interval between requests to fetch new posts. Default: 60s.",
+)
+@click.option(
+    "--post-frequency", default=2, help="Interval between posts. Default: 2s."
+)
+def run_command(channel: str, fetch_interval: int, post_frequency: int):
     click.echo("Started running.")
     for d in resolve_channels(channel):
-        schedule.every(interval).seconds.do(run, d, post_every)
-    if (sleep_to := interval / 6) < 1:
+        schedule.every(fetch_interval).seconds.do(run, d, post_frequency)
+    if (sleep_to := fetch_interval / 6) < 1:
         sleep_to = 1
     while True:
         schedule.run_pending()
