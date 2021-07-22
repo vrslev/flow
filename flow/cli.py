@@ -75,27 +75,31 @@ def fetch_command(channel: Optional[str]):
 @cli.command("publish", short_help="Publish posts that not published yet.")
 @click.argument("channel", required=False)
 @click.option("--limit", "-l", default=0)
-def publish_command(channel: Optional[str], limit: int):
+@click.option("--post-every", default=2, help="Interval between posts. Default: 2s.")
+def publish_command(channel: Optional[str], limit: int, post_every: int):
     for d in resolve_channels(channel):
-        publish(d, limit)
+        publish(d, limit=limit, post_every=post_every)
 
 
-def run(channel: str):
+def run(channel: str, post_every: int):
     click.echo(f'Executing repeated task for channel: "{channel}"')
     fetch(channel)
-    publish(channel)
+    publish(channel, post_every=post_every)
 
 
 @cli.command("run", short_help="Run 'fetch' and 'publish' perodically.")
 @click.argument("channel", required=False)
 @click.option("--interval", "-i", default=60, help="Interval in seconds. Default: 60s.")
-def run_command(channel: str, interval: int):
+@click.option("--post-every", default=2, help="Interval between posts. Default: 2s.")
+def run_command(channel: str, interval: int, post_every: int):
     click.echo("Started running.")
     for d in resolve_channels(channel):
-        schedule.every(interval).seconds.do(run, d)
+        schedule.every(interval).seconds.do(run, d, post_every)
+    if (sleep_to := interval / 6) < 1:
+        sleep_to = 1
     while True:
         schedule.run_pending()
-        time.sleep(interval / 6)  # TODO: Dig in this
+        time.sleep(sleep_to)
 
 
 add_channel_instructions = f"""To add new channel you need to:

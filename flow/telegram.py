@@ -24,7 +24,7 @@ def get_unpublished_posts_from_db(channel_name: str, limit: int):
     """
     params = [channel_name]
     if limit:
-        query += "\nLIMIT "
+        query += "\nLIMIT ?"
         params.append(str(limit))
     posts: list[Post] = db.execute(query, params).fetchall()
     return posts
@@ -189,7 +189,7 @@ def publish_post(bot: CustomBot, post: Post, format: bool = True):
 
 
 @config_required
-def publish(channel_name: str, limit: int):
+def publish(channel_name: str, limit: int = 0, post_every: int = 2):
     channel = get_channel(channel_name)
 
     posts = get_unpublished_posts_from_db(channel["name"], limit)
@@ -200,6 +200,6 @@ def publish(channel_name: str, limit: int):
         for d in posts:
             publish_post(bot, d, format=channel["format_text"])
             if len(posts) > 1:
-                sleep(2)
+                sleep(post_every)
 
     click.echo("Done.")
