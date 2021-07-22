@@ -23,6 +23,7 @@ class ConfChannel(TypedDict):
     name: str
     tg_chat_id: int
     vk_group_id: int
+    format_text: bool
 
 
 @dataclass

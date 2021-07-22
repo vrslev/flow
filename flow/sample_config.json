@@ -1,6 +1,7 @@
 {
   "channels": [
     {
+      "format_text": true,
       "name": "",
       "tg_chat_id": 0,
       "vk_group_id": 0

@@ -73,9 +73,10 @@ def fetch_command(channel: Optional[str]):
 
 @cli.command("publish")
 @click.argument("channel", required=False)
-def publish_command(channel: Optional[str]):
+@click.option("--limit", "-l", default=0)
+def publish_command(channel: Optional[str], limit: int):
     for d in resolve_channels(channel):
-        publish(d)
+        publish(d, limit)
 
 
 def run(channel: str):
@@ -96,7 +97,7 @@ def run_command(channel: str):
 
 
 @cli.command("add-channel")
-def add_channel_command():
+def add_channel_command():  # TODO: Refactor
 
     if not click.confirm(
         f"""To add new channel you need to:
@@ -176,6 +177,7 @@ If you have already done that, than hit 'Enter'.""",
         if not config_content.get("channels"):
             config_content["channels"] = []
         channelconf: ConfChannel = {
+            "format_text": True,
             "name": name,
             "tg_chat_id": tg_chat_id,
             "vk_group_id": vk_group_id,

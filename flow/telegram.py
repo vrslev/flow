@@ -16,12 +16,16 @@ from .format import format_text
 from .types import Post
 
 
-def get_unpublished_posts_from_db(channel_name: str):
-    posts: list[Post] = db.execute(
-        """
+def get_unpublished_posts_from_db(channel_name: str, limit: int):
+    limit_text = f"LIMIT {int(limit)}" if limit > 0 else ""
+
+    # TODO: Fix security
+    posts: list[Post] = db.execute(  # nosec
+        f"""
         SELECT * FROM post
         WHERE is_published = 0
         AND channel_name = ?
+        {limit_text}
     """,
         (channel_name,),
     ).fetchall()
@@ -161,9 +165,7 @@ class CustomBot(telegram.Bot):
         return r
 
 
-def publish_post(
-    bot: CustomBot, post: Post, format: bool = True
-):  # TODO: Add option in config `format`=bool
+def publish_post(bot: CustomBot, post: Post, format: bool = True):
     content = post["content"]
     if format:
         content = format_text(content)
@@ -189,24 +191,19 @@ def publish_post(
 
 
 @config_required
-def publish(channel_name: str):
+def publish(channel_name: str, limit: int):
     channel = get_channel(channel_name)
 
     posts = get_unpublished_posts_from_db(
-        channel["name"]
+        channel["name"], limit
     )  # TODO: Allow setting limit on number of posts to publish
     click.echo(f"{len(posts)} posts to publish")
     if len(posts) > 0:
         bot = CustomBot(token=conf.tg_bot_token, chat_id=channel["tg_chat_id"])
         click.echo("Publishing...")
         for d in posts:
-            publish_post(bot, d)
+            publish_post(bot, d, format=channel["format_text"])
             if len(posts) > 1:
                 sleep(2)
 
     click.echo("Done.")
-
-
-def add_channel(name: str):
-    bot = telegram.Bot(token=conf.tg_bot_token)
-    print(bot.get_updates())
