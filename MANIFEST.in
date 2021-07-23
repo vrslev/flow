@@ -3,9 +3,8 @@ include LICENSE
 
 include *.md *.yaml *.toml
 
-recursive-include flow *.json
-recursive-include flow *.sql
-recursive-include instance
+recursive-include flow *.yaml
+
 recursive-exclude tests *.pyc
 recursive-exclude instance
 recursive-exclude venv

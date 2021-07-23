@@ -15,11 +15,11 @@ CLASSIFIERS = [
 
 PYTHON_REQUIRES = ">=3.9"
 INSTALL_REQUIRES = [
-    "vk-api~=11.9.4",
     "python-telegram-bot~=13.7",
-    "click~=8.0.1",
-    "schedule~=1.1.0",
+    "click~=8.0",
+    "schedule",
     "emoji~=1.4.1",
+    "pyyaml",
 ]
 EXTRAS_REQUIRE = {"dev": ["pre-commit", "black"]}
 

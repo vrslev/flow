@@ -33,9 +33,9 @@ export FLOW_INSTANCE_PATH=/home/lev/flow/instance
 
 6. Выполните команду `flow` в терминале, чтобы инициализировать базу данных, конфиг и лог.
 7. [Создайте приложение VK](https://vk.com/apps?act=manage).
-8. Откройте `config.json` в папке, которую вы создали и заполните `vk_app_id` (ID приложения) и `vk_app_service_token` (сервисный токен приложения).
+8. Откройте `config.yaml` в папке, которую вы создали и заполните `vk_app_id` (ID приложения) и `vk_app_service_token` (сервисный токен приложения).
 9. [Создайте Telegram-бота](https://t.me/BotFather).
-10. Заполните `tg_bot_username` (имя бота) and `tg_bot_token` (токен бота) в `config.json`.
+10. Заполните `tg_bot_username` (имя бота) and `tg_bot_token` (токен бота) в `config.yaml`.
 11. Выполните `flow add-channel` в терминале и продолжите в соответствии с данными инструкциями, чтобы добавить канал.
 
 Установка завершена!

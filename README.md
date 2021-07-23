@@ -33,9 +33,9 @@ In future, add this in your `.bashprofile` or `.zshrc`.
 
 6. Run `flow` to initialize database, config and log files.
 7. [Create a VK App](https://vk.com/apps?act=manage).
-8. Open `config.json` in directory you created and fill `vk_app_id` and `vk_app_service_token`.
+8. Open `config.yaml` in directory you created and fill `vk_app_id` and `vk_app_service_token`.
 9. [Create Telegram bot](https://t.me/BotFather).
-10. Fill `tg_bot_username` and `tg_bot_token` in `config.json`.
+10. Fill `tg_bot_username` and `tg_bot_token` in `config.yaml`.
 11. Run `flow add-channel` and follow instructions in order to add new channel.
 
 Installation is complete!

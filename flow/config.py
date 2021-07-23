@@ -1,69 +1,63 @@
-import json
+from dataclasses import dataclass
 import os
 import pathlib
-from typing import Any, Callable
 
 import click
+import yaml
 
-from .types import Conf
+
+@dataclass
+class ChannelConf:
+    name: str
+    tg_chat_id: int
+    vk_group_id: int
+    format_text: bool
 
 
-class WrongConfigError(ValueError):
-    ...
+@dataclass
+class Conf:
+    channels: list[ChannelConf]
+    database: str
+    tg_bot_token: str
+    tg_bot_username: str
+    vk_app_id: int  # TODO: Do i need this?
+    vk_app_service_token: str
+
+    instance_path: str
 
 
 def get_instance_path():
-    instance_path = os.environ.get("FLOW_INSTANCE_PATH")
+    var_name = "FLOW_INSTANCE_PATH"
+    instance_path = os.environ.get(var_name)
     if not instance_path:
         raise click.UsageError(
-            'You did not provide the "FLOW_INSTANCE_PATH" environment variable.'
+            f'You did not provide the "{var_name}" environment variable.'
         )
     elif os.path.exists(instance_path) and os.path.isabs(instance_path):
         return instance_path
     else:
         raise click.UsageError(
-            'Incorrect path set in "FLOW_INSTANCE_PATH" environment variable.'
+            f'Incorrect path set in "{var_name}" environment variable.'
         )
 
 
-def get_config():
+def get_conf():
+    instance_path = get_instance_path()
+
     if not os.path.exists(instance_path):
         os.mkdir(instance_path)
 
-    fpath = os.path.join(instance_path, "config.json")
+    fpath = os.path.join(instance_path, "config.yaml")
 
     if not os.path.exists(fpath):
-        with open(os.path.join(cur_path, "sample_config.json")) as f:
+        cur_path = pathlib.Path(__file__).parent
+        with open(os.path.join(cur_path, "sample_config.yaml")) as f:
             sample_config = f.read()
         with open(fpath, "a+") as f:
             f.write(sample_config)
 
     with open(fpath) as f:
-        conf_dict = json.load(f)
+        conf_dict = yaml.safe_load(f)
+        conf_dict["channels"] = [ChannelConf(**c) for c in conf_dict["channels"]]
+        conf_dict["instance_path"] = instance_path
         return Conf(**conf_dict)
-
-
-def config_required(f: Callable[..., Any]) -> Callable[..., Any]:
-    def decorator(*args: Any, **kwargs: Any):
-        validate_config()
-        f(*args, **kwargs)
-
-    return decorator
-
-
-def validate_config():
-    for k, v in conf.__dict__.items():
-        if not k or not v:
-            raise WrongConfigError("Configuration is not complete")
-
-
-def get_channel(name: str):
-    for d in conf.channels:
-        if d["name"] == name:
-            return d
-    raise ValueError(f'No such channel: "{name}"')
-
-
-cur_path = pathlib.Path(__file__).parent
-instance_path = get_instance_path()
-conf = get_config()

@@ -1,4 +1,3 @@
-import json
 import logging
 import os
 import re
@@ -9,12 +8,11 @@ import click
 import schedule
 import telegram
 import vk_api
+import yaml
 
-from .config import conf, instance_path
-from .database import db, init_db
-from .telegram import publish
-from .types import ConfChannel
-from .vk import fetch, get_vk
+from .config import ChannelConf, get_conf
+from .core import Flow
+from .vk import VkApi
 
 
 def patch_echo():
@@ -41,7 +39,6 @@ class CustomClickGroup(click.Group):
             return self.main(*args, **kwargs)  # type: ignore
         except Exception as e:
             logging.error(e, exc_info=True)
-            db.close()
             raise e
 
 
@@ -50,15 +47,10 @@ def cli():
     ...
 
 
-@cli.command("init-db", short_help="Reinitialize database. Careful, it will be erased!")
-def init_db_command():
-    init_db()
-    click.echo("Database initialized.")
-
-
-def resolve_channels(channel: Optional[str]) -> list[str]:
-    if channel == "all" or len(conf.channels) == 1:
-        return [d["name"] for d in conf.channels]
+def resolve_channels(channel: Optional[str]):
+    conf = get_conf()
+    if channel == "all" or len(conf.channels) == 1:  # TODO: This seems wrong
+        return (d.name for d in conf.channels)
     elif not channel:
         raise ValueError("Enter channel name")
     else:
@@ -69,7 +61,8 @@ def resolve_channels(channel: Optional[str]) -> list[str]:
 @click.argument("channel", required=False)
 def fetch_command(channel: Optional[str]):
     for d in resolve_channels(channel):
-        fetch(d)
+        Flow().fetch(d)
+    click.echo("Done.")
 
 
 @cli.command("publish", short_help="Publish posts that not published yet.")
@@ -77,16 +70,18 @@ def fetch_command(channel: Optional[str]):
 @click.option("--limit", "-l", default=0)
 @click.option(
     "--post-frequency", default=2, help="Interval between posts. Default: 2s."
-)  # Rename to post-frequency
+)
 def publish_command(channel: Optional[str], limit: int, post_frequency: int):
     for d in resolve_channels(channel):
-        publish(d, limit=limit, post_frequency=post_frequency)
+        Flow().publish(d, post_frequency, limit)
+    click.echo("Done.")
 
 
 def run(channel: str, post_frequency: int):
     click.echo(f'Executing repeated task for channel: "{channel}"')
-    fetch(channel)
-    publish(channel, post_frequency=post_frequency)
+    flow_ = Flow()
+    flow_.fetch(channel)
+    flow_.publish(channel, post_frequency)
 
 
 @cli.command("run", short_help="Run 'fetch' and 'publish' perodically.")
@@ -99,7 +94,9 @@ def run(channel: str, post_frequency: int):
 @click.option(
     "--post-frequency", default=2, help="Interval between posts. Default: 2s."
 )
-def run_command(channel: str, fetch_interval: int, post_frequency: int):
+def run_command(
+    channel: str, fetch_interval: int, post_frequency: int
+):  # TODO: Separate fetching and posting (doesn't make sense now)
     click.echo("Started running.")
     for d in resolve_channels(channel):
         schedule.every(fetch_interval).seconds.do(run, d, post_frequency)
@@ -110,8 +107,8 @@ def run_command(channel: str, fetch_interval: int, post_frequency: int):
         time.sleep(sleep_to)
 
 
-add_channel_instructions = f"""To add new channel you need to:
-    1. Add your bot (@{conf.tg_bot_username}) to Telegram channel
+add_channel_instructions = """To add new channel you need to:
+    1. Add your bot (@{}) to Telegram channel
        in which you're planning to repost posts as Administrator
 
     2. Send any message in this channel.
@@ -120,8 +117,11 @@ If you've done that, than hit 'Enter'."""
 
 
 @cli.command("add-channel", short_help="Add new channel (source + target).")
-def add_channel_command():
-    if not click.confirm(add_channel_instructions, default=True):
+def add_channel_command():  # TODO: This is messy
+    conf = get_conf()
+    if not click.confirm(
+        add_channel_instructions.format(conf.tg_bot_username), default=True
+    ):
         return
 
     vk_group_id: Optional[int] = None
@@ -136,7 +136,7 @@ def add_channel_command():
         else:
             screen_name = screen_name[0]
             try:
-                group: dict[str, Any] = get_vk().groups.getById(
+                group: dict[str, Any] = VkApi(conf.vk_app_service_token).get_group_info(
                     group_id=str(screen_name)
                 )[0]
             except vk_api.exceptions.ApiError as e:
@@ -181,13 +181,13 @@ def add_channel_command():
     if not tg_chat_id:
         return
 
-    channels_in_conf = [d["name"] for d in conf.channels]
+    channels_in_conf = [d.name for d in conf.channels]
     name = None
     for i in range(5):  # type: ignore
         name = click.prompt('Enter name, for example, "cute_dogs"')
 
         if name in channels_in_conf:
-            click.echo("Channel with this name already in 'config.json'. Try again.")
+            click.echo("Channel with this name already in 'config.yaml'. Try again.")
         elif len(re.findall(r"[^a-z0-9_]+", name)) > 0:
             click.echo("Can except only this symbols: a-z, 0-9, _. Try again.")
         else:
@@ -195,25 +195,23 @@ def add_channel_command():
     if not name:
         return
 
-    with open(os.path.join(instance_path, "config.json"), "r+") as f:
-        conf_content = json.load(f)
+    with open(os.path.join(conf.instance_path, "config.yaml"), "r+") as f:
+        conf_content = yaml.safe_load(f)
         if "channels" not in conf_content:
             conf_content["channels"] = []
 
-        channel_conf: ConfChannel = {
-            "format_text": True,
-            "name": name,
-            "tg_chat_id": tg_chat_id,
-            "vk_group_id": vk_group_id,
-        }
+        channel_conf = ChannelConf(
+            name=name, format_text=True, tg_chat_id=tg_chat_id, vk_group_id=vk_group_id
+        )
         conf_content["channels"].append(channel_conf)
 
         f.seek(0)
-        json.dump(conf_content, f, sort_keys=True, indent=2)
+        yaml.dump(conf_content, f, sort_keys=True, indent=2)
 
 
-@cli.command("list-channels", short_help="Show channels in 'config.json'.")
+@cli.command("list-channels", short_help="Show channels in 'config.yaml'.")
 def list_channels_command():
-    channel_names = [d["name"] for d in conf.channels]
+    conf = get_conf()
+    channel_names = [d.name for d in conf.channels]
     channel_names.sort()
     click.echo("\n".join(channel_names))
