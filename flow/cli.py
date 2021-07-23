@@ -7,9 +7,9 @@ from typing import Any, Optional
 import click
 import schedule
 import telegram
-import vk_api
 import yaml
 
+from .api.vk import VkApiError
 from .config import ChannelConf, get_conf
 from .core import Flow
 from .vk import VkApi
@@ -139,14 +139,12 @@ def add_channel_command():  # TODO: This is messy
                 group: dict[str, Any] = VkApi(conf.vk_app_service_token).get_group_info(
                     group_id=str(screen_name)
                 )[0]
-            except vk_api.exceptions.ApiError as e:
-                if e.code == 100:
-                    click.echo(
-                        f"Group with screen name '{screen_name}'"
-                        " does not exist. Try again."
-                    )
-                    continue
-                raise e
+            except VkApiError:  # TODO: Specify error
+                click.echo(
+                    f"Group with screen name '{screen_name}'"
+                    " does not exist. Try again."
+                )
+                continue
 
             click.echo(f'Got group "{group["name"]}"')
             vk_group_id = int(group["id"])
