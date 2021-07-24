@@ -9,10 +9,9 @@ import schedule
 import telegram
 import yaml
 
-from .api.vk import VkApiError
+from .api.vk import VkApi
 from .config import get_conf
 from .core import Flow
-from .vk import VkApi
 
 
 def _patch_echo():
@@ -140,16 +139,9 @@ def add_channel_command():  # TODO: This is messy
             click.echo("Not valid VK Group URL. Try again.")
         else:
             screen_name = screen_name[0]
-            try:
-                group: dict[str, Any] = VkApi(conf.vk_app_service_token).get_group_info(
-                    group_id=str(screen_name)
-                )[0]
-            except VkApiError:  # TODO: Specify error
-                click.echo(
-                    f"Group with screen name '{screen_name}'"
-                    " does not exist. Try again."
-                )
-                continue
+            group: dict[str, Any] = VkApi(conf.vk_app_service_token).get_group_info(
+                group_id=str(screen_name)
+            )[0]
 
             click.echo(f'Got group "{group["name"]}"')
             vk_group_id = int(group["id"])
