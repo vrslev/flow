@@ -21,9 +21,9 @@ class CustomBot(telegram.Bot):
         super().__init__(*args, **kwargs)
         self.parse_mode = parse_mode or telegram.ParseMode.MARKDOWN
 
-    def _message(self, *args: Any, **kwargs: Optional[Any]):
+    def _post(self, *args: Any, **kwargs: Optional[Any]):
         def send():
-            return super(CustomBot, self)._message(*args, **kwargs)
+            return super(CustomBot, self)._post(*args, **kwargs)
 
         try:
             return send()
