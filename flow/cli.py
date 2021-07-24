@@ -1,7 +1,7 @@
 import logging
 import os
 import re
-import time
+from time import sleep
 from typing import Any, Optional
 
 import click
@@ -49,7 +49,7 @@ def cli():
 
 def _resolve_channels(channel: Optional[str]):
     conf = get_conf()
-    if channel == "all" or len(conf.channels) == 1:  # TODO: This seems wrong
+    if channel == "all" or len(conf.channels) == 1:
         return (d.name for d in conf.channels)
     elif not channel:
         raise ValueError("Enter channel name")
@@ -77,13 +77,6 @@ def publish_command(channel: Optional[str], limit: int, post_frequency: int):
     click.echo("Done.")
 
 
-def run(channel: str, post_frequency: int):
-    click.echo(f'Executing repeated task for channel: "{channel}"')
-    flow_ = Flow()
-    flow_.fetch(channel)
-    flow_.publish(channel, post_frequency)
-
-
 @cli.command("run", short_help="Run 'fetch' and 'publish' perodically.")
 @click.argument("channel", required=False)
 @click.option(
@@ -94,18 +87,29 @@ def run(channel: str, post_frequency: int):
 @click.option(
     "--post-frequency", default=2, help="Interval between posts. Default: 2s."
 )
-def run_command(
-    channel: str, fetch_interval: int, post_frequency: int
-):  # TODO: Separate fetching and posting (doesn't make sense now)
-    # TODO: Move from `schedule` to `APS Scheduler``
+def run_command(channel: str, fetch_interval: int, post_frequency: int):
+    """
+    Run `fetch` and `publish` periodically.
+    Executes every `fetch_interval` seconds.
+    After updating posts info, publish unpublished yet every `post_frequency` seconds.
+    """
+
+    def run():
+        click.echo([d for d in channel_names])
+        for d in channel_names:
+            click.echo(f'Executing repeated task for channel: "{d}"')
+            flow_.fetch(d)
+            flow_.publish(d, post_frequency)
+
+    flow_ = Flow()
+    channel_names = [c for c in _resolve_channels(channel)]
+
     click.echo("Started running.")
-    for d in _resolve_channels(channel):
-        schedule.every(fetch_interval).seconds.do(run, d, post_frequency)
-    if (sleep_to := fetch_interval / 6) < 1:
-        sleep_to = 1
+    schedule.every(fetch_interval).seconds.do(run)
+
     while True:
         schedule.run_pending()
-        time.sleep(sleep_to)
+        sleep(1)
 
 
 _add_channel_instructions = """To add new channel you need to:
@@ -212,8 +216,9 @@ def add_channel_command():  # TODO: This is messy
         yaml.dump(conf_content, f, sort_keys=True, indent=2)
 
     Flow().fetch(name)
-    Flow().storage.mark_all_posts_as_published_for_channel(name)
-    click.echo("Marked posts as published.")
+    if click.confirm("Mark all posts as published?"):
+        Flow().storage.mark_all_posts_as_published_for_channel(name)
+        click.echo("Marked posts as published.")
     click.echo("Channel successfully added.")
 
 
