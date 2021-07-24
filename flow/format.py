@@ -12,7 +12,7 @@ def format_text(text: Optional[str]):
     text = fix_quotes(text)
     text = fix_dash(text)
     text = remove_multiple_punctuation_marks(text)
-    text = fix_spaces_near_punctuation_marks(text)
+    # text = fix_spaces_near_punctuation_marks(text)
     text = make_header(text)
     text = remove_multiple_line_breakers(text)
     text = format_internal_vk_links(text)
@@ -71,9 +71,9 @@ def make_header(text: str):
         r"(^[\w ,]+(%s))" % symbols,
         flags=re.UNICODE,
     )
-    new_text = re.sub(regex, r"*\g<1>*\n\n", text)
+    new_text = re.sub(regex, r"<b>\g<1></b>\n\n", text)
 
-    new_text = new_text.replace("\n*", "*")
+    new_text = new_text.replace("\n</b>", "</b>")
     if new_text == text:
         new_text = re.sub(rf"(^[^\w]+[^\n]+?[^\w]+?)\n", r"\g<1>\n", text)
 
@@ -85,13 +85,15 @@ def remove_spaces_in_start_and_end(text: str):
 
 
 def format_internal_vk_links(text: str):
-    regex = re.compile(r"\[([^\|\]]+)\|([^\]]+)\]")
+    regex = re.compile(r"\[(https://)?(vk.com/)?([^\|\]]+)\|([^\]]+)\]")
     match = regex.findall(text)
     if len(match) > 0:
-        for user_id, username in match:
+        for scheme, domain, user_id, username in match:
+            match_together = f"[{scheme}{domain}{user_id}|{username}]"
+            href = "https://vk.com/" + user_id
             text = text.replace(
-                f"[{user_id}|{username}]",
-                f"[{username}](https://vk.com/{user_id})",
+                match_together,
+                f'<a href="{href}">{username}</a>)',
             )
     return text
 

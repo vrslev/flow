@@ -1,5 +1,3 @@
-# pyright: reportIncompatibleMethodOverride=false
-
 import re
 from textwrap import wrap
 from time import sleep
@@ -12,6 +10,7 @@ from telegram.message import Message
 
 
 class CustomBot(telegram.Bot):
+    # pyright: reportIncompatibleMethodOverride=false
     def __init__(
         self,
         *args: Any,
@@ -19,7 +18,7 @@ class CustomBot(telegram.Bot):
         **kwargs: Optional[Any],
     ):
         super().__init__(*args, **kwargs)
-        self.parse_mode = parse_mode or telegram.ParseMode.MARKDOWN
+        self.parse_mode = parse_mode or telegram.ParseMode.HTML
 
     def _post(self, *args: Any, **kwargs: Optional[Any]):
         def send():
