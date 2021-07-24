@@ -20,7 +20,7 @@ class Conf:
     database: str
     tg_bot_token: str
     tg_bot_username: str
-    vk_app_id: int  # TODO: Do i need this?
+    vk_app_id: int
     vk_app_service_token: str
 
     instance_path: str

@@ -16,7 +16,7 @@ class Flow:
     def __init__(self):
         self.conf = get_conf()
         db_path = os.path.join(self.conf.instance_path, self.conf.database)
-        self.db = Database(db_path)  # TODO: Specify path here
+        self.db = Database(db_path)
         self.storage = Storage(self.db)
         self.bot = CustomBot(token=self.conf.tg_bot_token)
 

@@ -28,7 +28,7 @@ def _parse_wall(wall: dict[str, Any], channel_name: str):
         photos: list[str] = []
         video_in_post = False
         for att in d.get("attachments", []):
-            if att["type"] != "photo":  # TODO: Accept videos and links
+            if att["type"] != "photo":
                 if att["type"] == "video":
                     video_in_post = True
                 click.echo(
