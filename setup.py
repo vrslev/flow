@@ -21,7 +21,7 @@ INSTALL_REQUIRES = [
     "emoji~=1.4.1",
     "pyyaml",
 ]
-EXTRAS_REQUIRE = {"dev": ["pre-commit", "black"]}
+EXTRAS_REQUIRE = {"dev": ["pre-commit", "black"], "sentry": ["sentry_sdk"]}
 
 PACKAGES = find_packages()
 
