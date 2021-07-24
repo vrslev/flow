@@ -58,7 +58,9 @@ def _parse_wall(wall: dict[str, Any], channel_name: str):
             "vk_group_id": d["owner_id"],
         }
 
-        if video_in_post and not post["photos"]:
+        if (video_in_post and not post["photos"]) or not (
+            post["content"] and post["photos"]
+        ):
             continue
 
         post = Post(**post)  # type: ignore
