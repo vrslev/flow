@@ -28,7 +28,6 @@ class Storage:
         self.db = db
 
     def get_existing_posts_vk_post_ids(self, vk_post_ids: list[int]):
-
         query = "".join(
             [
                 """
@@ -96,5 +95,16 @@ class Storage:
         """
         self.db.execute(
             query, (json.dumps(tg_post_ids), tg_post_date, tg_chat_id, vk_post_id)
+        )
+        self.db.commit()
+
+    def mark_all_posts_as_published_for_channel(self, channel_name: str):
+        self.db.execute(
+            """
+            UPDATE post
+            SET is_published = 1
+            WHERE channel_name = ?
+        """,
+            (channel_name,),
         )
         self.db.commit()

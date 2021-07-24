@@ -3,7 +3,7 @@ import sqlite3
 from typing import Any, Optional, Union
 
 
-def dict_factory(cursor: sqlite3.Cursor, row: sqlite3.Row):
+def _dict_factory(cursor: sqlite3.Cursor, row: sqlite3.Row):
     d: dict[str, Any] = {}
     for idx, col in enumerate(cursor.description):
         d[col[0]] = row[idx]
@@ -25,7 +25,7 @@ class Database:
                 self.fpath,
                 detect_types=sqlite3.PARSE_DECLTYPES,
             )
-            self.con.row_factory = dict_factory
+            self.con.row_factory = _dict_factory
 
     def execute(self, *args: Any):
         self.connect()

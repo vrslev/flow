@@ -1,7 +1,7 @@
 import logging
 import os
 
-from .config import get_instance_path
+from . import config
 
 __version__ = "0.0.2"
 
@@ -15,7 +15,7 @@ __license__ = "MIT"
 
 
 logging.basicConfig(
-    filename=os.path.join(get_instance_path(), "flow.log"),
+    filename=os.path.join(config.get_instance_path(), "flow.log"),
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     level=logging.DEBUG,
 )

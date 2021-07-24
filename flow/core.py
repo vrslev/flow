@@ -50,7 +50,7 @@ class Flow:
             if len(posts) > 1:
                 sleep(post_frequency)
 
-    def _get_channel_conf(self, channel_name: str) -> ChannelConf:  # TODO: Don't use it
+    def _get_channel_conf(self, channel_name: str) -> ChannelConf:
         for c in self.conf.channels:
             if c.name == channel_name:
                 return c

@@ -10,12 +10,12 @@ import telegram
 import yaml
 
 from .api.vk import VkApiError
-from .config import ChannelConf, get_conf
+from .config import get_conf
 from .core import Flow
 from .vk import VkApi
 
 
-def patch_echo():
+def _patch_echo():
     """Custom `click.echo` to add logging all messages"""
     old_echo = click.echo  # type: ignore
 
@@ -28,7 +28,7 @@ def patch_echo():
     click.echo = custom_click_echo
 
 
-patch_echo()
+_patch_echo()
 
 
 class CustomClickGroup(click.Group):
@@ -47,7 +47,7 @@ def cli():
     ...
 
 
-def resolve_channels(channel: Optional[str]):
+def _resolve_channels(channel: Optional[str]):
     conf = get_conf()
     if channel == "all" or len(conf.channels) == 1:  # TODO: This seems wrong
         return (d.name for d in conf.channels)
@@ -60,7 +60,7 @@ def resolve_channels(channel: Optional[str]):
 @cli.command("fetch", short_help="Fetch latest 20 posts from VK group feed.")
 @click.argument("channel", required=False)
 def fetch_command(channel: Optional[str]):
-    for d in resolve_channels(channel):
+    for d in _resolve_channels(channel):
         Flow().fetch(d)
     click.echo("Done.")
 
@@ -72,7 +72,7 @@ def fetch_command(channel: Optional[str]):
     "--post-frequency", default=2, help="Interval between posts. Default: 2s."
 )
 def publish_command(channel: Optional[str], limit: int, post_frequency: int):
-    for d in resolve_channels(channel):
+    for d in _resolve_channels(channel):
         Flow().publish(d, post_frequency, limit)
     click.echo("Done.")
 
@@ -97,8 +97,9 @@ def run(channel: str, post_frequency: int):
 def run_command(
     channel: str, fetch_interval: int, post_frequency: int
 ):  # TODO: Separate fetching and posting (doesn't make sense now)
+    # TODO: Move from `schedule` to `APS Scheduler``
     click.echo("Started running.")
-    for d in resolve_channels(channel):
+    for d in _resolve_channels(channel):
         schedule.every(fetch_interval).seconds.do(run, d, post_frequency)
     if (sleep_to := fetch_interval / 6) < 1:
         sleep_to = 1
@@ -107,7 +108,7 @@ def run_command(
         time.sleep(sleep_to)
 
 
-add_channel_instructions = """To add new channel you need to:
+_add_channel_instructions = """To add new channel you need to:
     1. Add your bot (@{}) to Telegram channel
        in which you're planning to repost posts as Administrator
 
@@ -120,7 +121,7 @@ If you've done that, than hit 'Enter'."""
 def add_channel_command():  # TODO: This is messy
     conf = get_conf()
     if not click.confirm(
-        add_channel_instructions.format(conf.tg_bot_username), default=True
+        _add_channel_instructions.format(conf.tg_bot_username), default=True
     ):
         return
 
@@ -198,13 +199,22 @@ def add_channel_command():  # TODO: This is messy
         if "channels" not in conf_content:
             conf_content["channels"] = []
 
-        channel_conf = ChannelConf(
-            name=name, format_text=True, tg_chat_id=tg_chat_id, vk_group_id=vk_group_id
+        conf_content["channels"].append(
+            {
+                "format_text": True,
+                "name": name,
+                "tg_chat_id": tg_chat_id,
+                "vk_group_id": vk_group_id,
+            }
         )
-        conf_content["channels"].append(channel_conf)
 
         f.seek(0)
         yaml.dump(conf_content, f, sort_keys=True, indent=2)
+
+    Flow().fetch(name)
+    Flow().storage.mark_all_posts_as_published_for_channel(name)
+    click.echo("Marked posts as published.")
+    click.echo("Channel successfully added.")
 
 
 @cli.command("list-channels", short_help="Show channels in 'config.yaml'.")
