@@ -58,6 +58,9 @@ def get_conf():
 
     with open(fpath) as f:
         conf_dict = yaml.safe_load(f)
-        conf_dict["channels"] = [ChannelConf(**c) for c in conf_dict["channels"]]
+        if "channels" not in conf_dict:
+            conf_dict["channels"] = []
+        else:
+            conf_dict["channels"] = [ChannelConf(**c) for c in conf_dict["channels"]]
         conf_dict["instance_path"] = instance_path
         return Conf(**conf_dict)
