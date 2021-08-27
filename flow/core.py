@@ -3,6 +3,7 @@ from time import sleep
 from typing import Optional
 
 import click
+from telegram.error import BadRequest
 
 from .api.telegram import CustomBot
 from .config import ChannelConf, get_conf
@@ -42,11 +43,13 @@ class Flow:
         channel_conf = self._get_channel_conf(channel_name)
         chat = Chat(self.bot, channel_conf.tg_chat_id, channel_conf.format_text)
         posts = self.storage.get_unpublished_posts(channel_conf.name, limit)
-
         click.echo(f"{len(posts)} posts to publish")
         for post in posts:
-            published_posts = chat.publish_post(post)
-            self.storage.mark_post_as_published(post.vk_post_id, published_posts)
+            try:
+                chat.publish_post(post)
+            except BadRequest:
+                pass
+            self.storage.mark_post_as_published(post.vk_post_id, [])
             if len(posts) > 1:
                 sleep(post_frequency)
 
