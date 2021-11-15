@@ -5,11 +5,11 @@ from typing import Optional
 import click
 from telegram.error import BadRequest
 
-from .api.telegram import CustomBot
+from . import database
+from .api.tg import CustomBot
 from .config import ChannelConf, get_conf
-from .database import Database
 from .storage import Storage
-from .telegram import Chat
+from .tg import Chat
 from .vk import get_vk_updates
 
 
@@ -17,7 +17,7 @@ class Flow:
     def __init__(self):
         self.conf = get_conf()
         db_path = os.path.join(self.conf.instance_path, self.conf.database)
-        self.db = Database(db_path)
+        self.db = database.Database(db_path)
         self.storage = Storage(self.db)
         self.bot = CustomBot(token=self.conf.tg_bot_token)
 

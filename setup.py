@@ -21,7 +21,10 @@ INSTALL_REQUIRES = [
     "emoji~=1.4.1",
     "pyyaml",
 ]
-EXTRAS_REQUIRE = {"dev": ["pre-commit", "black"], "sentry": ["sentry_sdk"]}
+EXTRAS_REQUIRE = {
+    "dev": ["pre-commit", "black", "boto3-stubs[s3]"],
+    "sentry": ["sentry_sdk"],
+}
 
 PACKAGES = find_packages()
 

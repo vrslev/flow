@@ -1,0 +1,7 @@
+boto3==1.18.63
+sentry_sdk==1.3.0
+click==8.0.1
+python-telegram-bot==13.7
+schedule==1.1.0
+emoji==1.4.1
+PyYAML==5.4.1

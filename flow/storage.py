@@ -5,7 +5,7 @@ from typing import Optional
 
 from telegram.message import Message
 
-from .database import Database
+from . import database
 
 
 @dataclass
@@ -24,7 +24,7 @@ class Post:
 
 
 class Storage:
-    def __init__(self, db: Database):
+    def __init__(self, db: database.Database):
         self.db = db
 
     def get_existing_posts_vk_post_ids(self, vk_post_ids: list[int]):

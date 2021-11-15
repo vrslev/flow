@@ -27,6 +27,8 @@ class Conf:
 
 
 def get_instance_path():
+    if os.environ.get("IN_LAMBDA"):
+        return "/tmp"
     var_name = "FLOW_INSTANCE_PATH"
     instance_path = os.environ.get(var_name)
     if not instance_path:
@@ -41,7 +43,55 @@ def get_instance_path():
         )
 
 
+def patch_database():
+    import boto3
+    import botocore.exceptions
+
+    from . import database
+
+    class NewDatabase(database.Database):
+        def __init__(self, fpath: str):
+            self._s3 = boto3.client(
+                service_name="s3", endpoint_url="https://storage.yandexcloud.net"
+            )
+            try:
+                self._s3.download_file(Bucket="flowdb", Key="flowdb", Filename=fpath)
+            except botocore.exceptions.ClientError:
+                pass
+
+            super().__init__(fpath)
+
+        def commit(self):
+            super().commit()
+            self._s3.upload_file(Bucket="flowdb", Key="flowdb", Filename=self.fpath)
+
+    database.Database = NewDatabase
+
+
+def get_conf_from_env():
+    return Conf(
+        channels=[
+            ChannelConf(
+                name="main",
+                tg_chat_id=int(os.environ["TG_CHAT_ID"]),
+                vk_group_id=int(os.environ["VK_GROUP_ID"]),
+                format_text=True,
+            )
+        ],
+        database="flow.db",
+        tg_bot_token=os.environ["TG_BOT_TOKEN"],
+        tg_bot_username=os.environ["TG_BOT_USERNAME"],
+        vk_app_id=int(os.environ["VK_APP_ID"]),
+        vk_app_service_token=os.environ["VK_APP_SERVICE_TOKEN"],
+        instance_path="/tmp",  # nosec
+    )
+
+
 def get_conf():
+    if os.environ.get("IN_LAMBDA"):
+        patch_database()
+        return get_conf_from_env()
+
     instance_path = get_instance_path()
 
     if not os.path.exists(instance_path):

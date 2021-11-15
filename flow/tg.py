@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from telegram.files.inputmedia import InputMediaPhoto
 
-from .api.telegram import CustomBot
+from .api.tg import CustomBot
 from .format import format_text
 from .storage import Post
 
