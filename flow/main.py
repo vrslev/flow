@@ -3,6 +3,7 @@ import os
 from typing import Any
 
 import boto3
+import botocore.exceptions
 import sentry_sdk
 
 from flow.db import Storage
@@ -36,9 +37,12 @@ def main(settings: Settings) -> int:
 @contextlib.contextmanager
 def db_from_s3(settings: LambdaSettings):
     client = boto3.client(service_name="s3")  # type: ignore
-    client.download_file(
-        Bucket=settings.s3_bucket, Key=settings.s3_key, Filename=settings.db_path
-    )
+    try:
+        client.download_file(
+            Bucket=settings.s3_bucket, Key=settings.s3_key, Filename=settings.db_path
+        )
+    except botocore.exceptions.ClientError:
+        pass
     yield
     client.upload_file(
         Bucket=settings.s3_bucket, Key=settings.s3_key, Filename=settings.db_path
