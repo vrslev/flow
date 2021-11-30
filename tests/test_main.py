@@ -2,6 +2,7 @@ import os
 from datetime import datetime
 
 import boto3
+import botocore.exceptions
 import py
 import pytest
 import sentry_sdk
@@ -117,14 +118,26 @@ def lambda_settings(monkeypatch: pytest.MonkeyPatch, settings: Settings):
     return LambdaSettings()
 
 
+@pytest.mark.parametrize("fail_download", (True, False))
 def test_lambda_handler(
-    monkeypatch: pytest.MonkeyPatch, lambda_settings: LambdaSettings
+    monkeypatch: pytest.MonkeyPatch,
+    lambda_settings: LambdaSettings,
+    fail_download: bool,
 ):
     calls: list[str] = []
 
     class MyClient:
-        def __init__(self, service_name: str):
+        def __init__(
+            self,
+            service_name: str,
+            endpoint_url: str,
+            aws_access_key_id: str,
+            aws_secret_access_key: str,
+        ):
             assert service_name == "s3"
+            assert endpoint_url == lambda_settings.s3_endpoint
+            assert aws_access_key_id == lambda_settings.aws_access_key_id
+            assert aws_secret_access_key == lambda_settings.aws_secret_access_key
             calls.append("init")
 
         def download_file(self, Bucket: str, Key: str, Filename: str):
@@ -132,6 +145,8 @@ def test_lambda_handler(
             assert Key == lambda_settings.s3_key
             assert Filename == lambda_settings.db_path
             calls.append("download")
+            if fail_download:
+                raise botocore.exceptions.ClientError({}, "")
 
         def upload_file(self, Bucket: str, Key: str, Filename: str):
             assert Bucket == lambda_settings.s3_bucket

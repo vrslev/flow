@@ -47,6 +47,7 @@ def db_from_s3(settings: LambdaSettings):
             Bucket=settings.s3_bucket, Key=settings.s3_key, Filename=settings.db_path
         )
     except botocore.exceptions.ClientError:
+        # Initial download (object doesn't exist yet)
         pass
     yield
     client.upload_file(
