@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "better-flow"
+name = "flow"
 version = "0.0.1"
 description = "Lambda app for reposting posts from VK to Telegram"
 authors = ["Lev Vereshchagin <mail@vrslev.com>"]
