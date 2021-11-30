@@ -31,7 +31,8 @@ class Bot(BaseTelegramBot):
 
 
 def publish_post(*, token: str, chat_id: int, post: Post):
+    bot = Bot(token)
     if post.text:
-        Bot(token).send_message(chat_id=chat_id, text=post.text)
+        bot.send_message(chat_id=chat_id, text=post.text)
     if post.photos:
-        Bot(token).send_photo_group(chat_id=chat_id, photo_urls=post.photos)
+        bot.send_photo_group(chat_id=chat_id, photo_urls=post.photos)
