@@ -36,7 +36,12 @@ def main(settings: Settings) -> int:
 
 @contextlib.contextmanager
 def db_from_s3(settings: LambdaSettings):
-    client = boto3.client(service_name="s3")  # type: ignore
+    client = boto3.client(  # type: ignore
+        service_name="s3",
+        endpoint_url=settings.s3_endpoint,
+        aws_access_key_id=settings.aws_access_key_id,
+        aws_secret_access_key=settings.aws_secret_access_key,
+    )
     try:
         client.download_file(
             Bucket=settings.s3_bucket, Key=settings.s3_key, Filename=settings.db_path
