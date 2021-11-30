@@ -2,7 +2,6 @@ import textwrap
 
 from base_telegram_bot import BaseTelegramBot
 from pydantic import HttpUrl
-from telegram.constants import MAX_MESSAGE_LENGTH
 
 from flow.models import Post
 
@@ -13,7 +12,9 @@ from flow.models import Post
 class Bot(BaseTelegramBot):
     def send_message(self, *, chat_id: int, text: str):
         for chunk in textwrap.wrap(
-            text=text, width=MAX_MESSAGE_LENGTH, replace_whitespace=False
+            text=text,
+            width=4096,  # MAX_MESSAGE_LENGTH, taken from python-telegram-bot constants
+            replace_whitespace=False,
         ):
             self.make_request(
                 method="/sendMessage", json={"chat_id": chat_id, "text": chunk}
