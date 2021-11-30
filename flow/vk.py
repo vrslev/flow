@@ -2,7 +2,8 @@ from datetime import datetime
 from typing import Literal, Optional
 
 from base_vk_api import BaseVKAPI
-from pydantic import BaseModel, HttpUrl
+from pydantic import HttpUrl
+from sqlmodel import SQLModel
 
 from flow.models import Post
 
@@ -14,22 +15,22 @@ class VKAPI(BaseVKAPI):
         )
 
 
-class WallItemAttachmentPhotoSize(BaseModel):
+class WallItemAttachmentPhotoSize(SQLModel):
     width: int
     height: int
     url: HttpUrl
 
 
-class WallItemAttachmentPhoto(BaseModel):
+class WallItemAttachmentPhoto(SQLModel):
     sizes: list[WallItemAttachmentPhotoSize]
 
 
-class WallItemAttachment(BaseModel):
+class WallItemAttachment(SQLModel):
     type: str
     photo: Optional[WallItemAttachmentPhoto]
 
 
-class WallItem(BaseModel):
+class WallItem(SQLModel):
     id: int
     owner_id: int
     marked_as_ads: Literal[0, 1]
@@ -38,7 +39,7 @@ class WallItem(BaseModel):
     date: datetime
 
 
-class WallGetResponse(BaseModel):
+class WallGetResponse(SQLModel):
     count: int
     items: list[WallItem]
 
