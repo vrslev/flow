@@ -35,7 +35,7 @@ class WallItem(SQLModel):
     owner_id: int
     marked_as_ads: Literal[0, 1]
     text: Optional[str]
-    attachments: list[WallItemAttachment]
+    attachments: Optional[list[WallItemAttachment]]
     date: datetime
 
 
@@ -60,7 +60,7 @@ def _parse_wall(response: WallGetResponse):
             continue
 
         photos: list[HttpUrl] = []
-        for attachment in item.attachments:
+        for attachment in item.attachments or []:
             if attachment.photo is None:
                 continue
             if photo_url := _get_photo_with_highest_quality(attachment.photo):

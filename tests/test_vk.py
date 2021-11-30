@@ -71,7 +71,7 @@ def test_parse_wall():
                 owner_id=1,
                 marked_as_ads=0,
                 text="my text 0",
-                attachments=[],
+                attachments=None,
                 date=exp_datetime_1,
             ),
             WallItem(
