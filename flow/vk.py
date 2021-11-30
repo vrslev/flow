@@ -26,14 +26,14 @@ class WallItemAttachmentPhoto(BaseModel):
 
 class WallItemAttachment(BaseModel):
     type: str
-    photo: WallItemAttachmentPhoto | None
+    photo: Optional[WallItemAttachmentPhoto]
 
 
 class WallItem(BaseModel):
     id: int
     owner_id: int
     marked_as_ads: Literal[0, 1]
-    text: str | None
+    text: Optional[str]
     attachments: list[WallItemAttachment]
     date: datetime
 

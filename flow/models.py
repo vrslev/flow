@@ -7,7 +7,7 @@ from sqlmodel import Field, SQLModel
 
 class Post(SQLModel):
     id: int
-    text: str | None
+    text: Optional[str]
     photos: list[HttpUrl]
     date: datetime
 
@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     tg_token: str
     tg_chat_id: int
     database_path: str = "/tmp/database.db"
-    sentry_dsn: str | None
+    sentry_dsn: Optional[str]
 
 
 class LambdaSettings(Settings):

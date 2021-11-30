@@ -7,7 +7,7 @@ repository = "https://github.com/vrslev/flow"
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.9"
 python-telegram-bot = "^13.8.1"
 sqlmodel = "^0.0.4"
 requests = "^2.26.0"
@@ -34,11 +34,11 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.black]
-target-version = ["py310"]
+target-version = ["py39"]
 
 [tool.isort]
 profile = "black"
 
 [tool.pyright]
 typeCheckingMode = "strict"
-pythonVersion = "3.10"
+pythonVersion = "3.9"
