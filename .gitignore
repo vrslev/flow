@@ -1,9 +1,6 @@
-*.egg-info
-*.py[cod]
+*.DS_Store
+.vscode/
+.env
+.coverage
+.pytest_cache/
 __pycache__/
-
-.ipynb_checkpoints
-.DS_Store
-
-venv/
-instance/

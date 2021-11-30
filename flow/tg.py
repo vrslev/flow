@@ -1,35 +1,34 @@
-from dataclasses import dataclass
+import textwrap
 
-from telegram.files.inputmedia import InputMediaPhoto
+from base_telegram_bot import BaseTelegramBot
+from pydantic import HttpUrl
+from telegram.constants import MAX_MESSAGE_LENGTH
 
-from .api.tg import CustomBot
-from .format import format_text
-from .storage import Post
+from flow.models import Post
+
+# TODO: Make cli to determine chat id
+# TODO: HTML urls
 
 
-@dataclass
-class Chat:
-    bot: CustomBot
-    chat_id: int
-    format_text: bool
+class Bot(BaseTelegramBot):
+    def send_message(self, *, chat_id: int, text: str):
+        for chunk in textwrap.wrap(text=text, width=MAX_MESSAGE_LENGTH):
+            self.make_request(
+                method="/sendMessage", json={"chat_id": chat_id, "text": chunk}
+            )
 
-    def publish_post(self, post: Post):
-        content = post.content
-        if self.format_text:
-            content = format_text(content)
+    def send_photo_group(self, *, chat_id: int, photo_urls: list[HttpUrl]):
+        self.make_request(
+            method="/sendMediaGroup",
+            json={
+                "chat_id": chat_id,
+                "media": [{"type": "photo", "media": url} for url in photo_urls],
+            },
+        )
 
-        if not post.photos and post.content:
-            self.bot.send_message(chat_id=self.chat_id, text=content)
-        elif post.photos:
-            if len(post.photos) == 1:
-                self.bot.send_photo(
-                    chat_id=self.chat_id, photo=post.photos[0], caption=content
-                )
-            else:
-                self.bot.send_media_group(
-                    chat_id=self.chat_id,
-                    media=[InputMediaPhoto(media=p) for p in post.photos],
-                    disable_notification=True,  # prevent double notification
-                    text=content,
-                    timeout=60,
-                )
+
+def publish_post(*, token: str, chat_id: int, post: Post):
+    if post.text:
+        Bot(token).send_message(chat_id=chat_id, text=post.text)
+    if post.photos:
+        Bot(token).send_photo_group(chat_id=chat_id, photo_urls=post.photos)
