@@ -12,7 +12,7 @@ VK app service token. To get it you need to [create a VK app](https://vk.com/app
 
 ### `VK_OWNER_ID`
 
-<!-- TODO: Continue after simple cli to get it is done -->
+Source ID of VK group.
 
 ### `TG_TOKEN`
 
@@ -21,8 +21,6 @@ Telegram bot token. [Create a bot](https://t.me/BotFather)
 ### `TG_CHAT_ID`
 
 Target Telegram chat or channel id.
-
-<!-- TODO: Continue after simple cli for this too is done -->
 
 ### `DB_PATH`
 

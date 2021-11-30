@@ -45,7 +45,7 @@ def test_sentry_not_initialised(monkeypatch: pytest.MonkeyPatch):
 
 @pytest.fixture
 def settings(monkeypatch: pytest.MonkeyPatch, tmpdir: py.path.local):
-    db_path = os.path.join(tmpdir, "database.db")  # TODO: Use in-memory db
+    db_path = os.path.join(tmpdir, "database.db")
     monkeypatch.setenv("VK_TOKEN", "my_vk_token")
     monkeypatch.setenv("VK_OWNER_ID", "1")
     monkeypatch.setenv("TG_TOKEN", "my_tg_token")

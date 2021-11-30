@@ -5,7 +5,6 @@ from pydantic import HttpUrl
 
 from flow.models import Post
 
-# TODO: Make cli to determine chat id
 # TODO: HTML urls
 
 
