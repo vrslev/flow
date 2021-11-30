@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     vk_owner_id: int
     tg_token: str
     tg_chat_id: int
-    database_path: str = "/tmp/database.db"
+    db_path: str = "/tmp/database.db"
     sentry_dsn: Optional[str]
 
 

@@ -43,3 +43,11 @@ profile = "black"
 typeCheckingMode = "strict"
 pythonVersion = "3.9"
 reportPrivateUsage = false
+
+[tool.coverage.report]
+skip_covered = true
+show_missing = true
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == \"__main__\":",
+]

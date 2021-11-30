@@ -1,3 +1,6 @@
+import os
+
+import py
 import pytest
 from sqlmodel import Session
 
@@ -6,8 +9,8 @@ from flow.models import PostDB
 
 
 @pytest.fixture
-def storage(db_path: str):
-    return Storage(db_path)
+def storage(tmpdir: py.path.local):
+    return Storage(os.path.join(tmpdir, "database.db"))
 
 
 def test_add_post(storage: Storage):
