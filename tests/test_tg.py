@@ -6,7 +6,26 @@ import pytest
 
 import flow.tg
 from flow.models import Post
-from flow.tg import Bot, publish_post
+from flow.tg import Bot, _format_internal_vk_links, publish_post
+
+
+@pytest.mark.parametrize(
+    ("v", "expected"),
+    (
+        (
+            "[id1|Pavel Durov] is here",
+            '<a href="https://vk.com/id1">Pavel Durov</a> is here',
+        ),
+        ("[vk.com/id1|Pavel Durov]", '<a href="https://vk.com/id1">Pavel Durov</a>'),
+        (
+            "[https://vk.com/id1|Pavel Durov]",
+            '<a href="https://vk.com/id1">Pavel Durov</a>',
+        ),
+        ("https://vk.com/id1 — Pavel Durov", "https://vk.com/id1 — Pavel Durov"),
+    ),
+)
+def test_format_internal_vk_links(v: str, expected: str):
+    assert _format_internal_vk_links(v) == expected
 
 
 @pytest.fixture
@@ -14,7 +33,7 @@ def bot():
     return Bot("tg_token")
 
 
-def test_bot_send_message(bot: Bot):
+def test_bot_send_message(monkeypatch: pytest.MonkeyPatch, bot: Bot):
     count = 0
 
     def make_request(method: str, json: Any = None, model: Any = None) -> Any:
@@ -28,8 +47,19 @@ def test_bot_send_message(bot: Bot):
             assert len(json["text"]) == 1
         count += 1
 
+    called = False
+
+    def mock_format_internal_vk_links(text: str):
+        nonlocal called
+        called = True
+        return text
+
+    monkeypatch.setattr(
+        flow.tg, "_format_internal_vk_links", mock_format_internal_vk_links
+    )
     bot.make_request = make_request
     bot.send_message(chat_id=1, text="t" * 4097)
+    assert called
 
 
 def test_bot_send_media_group(bot: Bot):

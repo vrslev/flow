@@ -5,7 +5,7 @@ from base_vk_api import BaseVKAPI
 from pydantic import HttpUrl
 from sqlmodel import SQLModel
 
-from flow.models import Post
+from flow.models import Post, Settings
 
 
 class VKAPI(BaseVKAPI):
@@ -33,7 +33,7 @@ class WallItemAttachment(SQLModel):
 class WallItem(SQLModel):
     id: int
     owner_id: int
-    marked_as_ads: Literal[0, 1]
+    marked_as_ads: Optional[Literal[0, 1]]
     text: Optional[str]
     attachments: Optional[list[WallItemAttachment]]
     date: datetime
@@ -74,3 +74,7 @@ def _parse_wall(response: WallGetResponse):
 def get_wall(*, token: str, owner_id: int):
     response = VKAPI(token).get_wall(owner_id=owner_id)
     return _parse_wall(response)
+
+
+if __name__ == "__main__":
+    print(get_wall(token=Settings(".env").vk_token, owner_id=333528605)[-1])
