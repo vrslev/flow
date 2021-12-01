@@ -78,7 +78,7 @@ test = ["pytest (==6.2.5)", "pytest-cov (==3.0.0)", "pytest-randomly (==3.10.2)"
 type = "git"
 url = "https://github.com/vrslev/base-telegram-bot.git"
 reference = "main"
-resolved_reference = "31d7a35e345a6a97e4c76cdc6b8a208983fcb6b0"
+resolved_reference = "e2b90523f5687aec93a30a77ae71f73457d82116"
 
 [[package]]
 name = "base-vk-api"
@@ -100,7 +100,7 @@ test = ["pytest (==6.2.5)", "pytest-cov (==3.0.0)", "pytest-randomly (==3.10.2)"
 type = "git"
 url = "https://github.com/vrslev/base-vk-api.git"
 reference = "main"
-resolved_reference = "6ec8f50b43f1947f3b41d9384db52e027d03a349"
+resolved_reference = "ce3c7236636f36052894fa3ad69457712f22c264"
 
 [[package]]
 name = "black"
