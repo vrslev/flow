@@ -8,7 +8,7 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.9"
-python-telegram-bot = "^13.8.1"
+python-telegram-bot = "^13.9"
 sqlmodel = "^0.0.5"
 requests = "^2.26.0"
 base-telegram-bot = {git = "https://github.com/vrslev/base-telegram-bot.git", rev = "main"}
