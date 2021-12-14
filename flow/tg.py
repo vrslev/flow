@@ -29,7 +29,11 @@ class Bot(BaseTelegramBot):
             formatted_chunk = _format_internal_vk_links(chunk)
             self.make_request(
                 method="/sendMessage",
-                json={"chat_id": chat_id, "text": formatted_chunk},
+                json={
+                    "chat_id": chat_id,
+                    "text": formatted_chunk,
+                    "parse_mode": "HTML",
+                },
             )
 
     def send_photo_group(self, *, chat_id: int, photo_urls: list[HttpUrl]):

@@ -38,6 +38,7 @@ def test_bot_send_message(monkeypatch: pytest.MonkeyPatch, bot: Bot):
 
     def make_request(method: str, json: Any = None, model: Any = None) -> Any:
         assert method == "/sendMessage"
+        assert json["parse_mode"] == "HTML"
         assert json["chat_id"] == 1
 
         nonlocal count
