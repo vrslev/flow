@@ -13,7 +13,7 @@ requests = "^2.26.0"
 base-telegram-bot = {git = "https://github.com/vrslev/base-telegram-bot.git", rev = "main"}
 base-vk-api = {git = "https://github.com/vrslev/base-vk-api.git", rev = "main"}
 python-dotenv = "^0.19.2"
-boto3 = "^1.20.23"
+boto3 = "^1.20.26"
 boto3-stubs = {extras = ["s3"], version = "^1.20.23"}
 sentry-sdk = "^1.5.1"
 pytest = {version = "6.2.5", optional = true}
