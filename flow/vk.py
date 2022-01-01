@@ -77,4 +77,4 @@ def get_wall(*, token: str, owner_id: int):
 
 
 if __name__ == "__main__":
-    print(get_wall(token=Settings(".env").vk_token, owner_id=333528605)[-1])
+    print(get_wall(token=Settings(".env").vk_token, owner_id=333528605)[-1])  # type: ignore

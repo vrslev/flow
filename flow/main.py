@@ -56,11 +56,11 @@ def db_from_s3(settings: LambdaSettings):
 
 
 def lambda_handler(event: Any, handler: Any):
-    settings = LambdaSettings()
+    settings = LambdaSettings()  # type: ignore
     with db_from_s3(settings):
         main(settings)
 
 
 if __name__ == "__main__":
-    settings = Settings(".env")
+    settings = Settings(".env")  # type: ignore
     raise SystemExit(main(settings))
