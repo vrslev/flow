@@ -52,7 +52,7 @@ def settings(monkeypatch: pytest.MonkeyPatch, tmpdir: py.path.local):
     monkeypatch.setenv("TG_CHAT_ID", "my_tg_chat_id")
     monkeypatch.setenv("TG_CHAT_ID", "2")
     monkeypatch.setenv("DB_PATH", db_path)
-    return Settings()
+    return Settings()  # type: ignore
 
 
 def test_main_main(monkeypatch: pytest.MonkeyPatch, settings: Settings):
@@ -115,7 +115,7 @@ def lambda_settings(monkeypatch: pytest.MonkeyPatch, settings: Settings):
     monkeypatch.setenv("S3_ENDPOINT", "my_endpoint")
     monkeypatch.setenv("AWS_ACCESS_KEY_ID", "my_key")
     monkeypatch.setenv("AWS_SECRET_ACCESS_KEY", "my_access_key")
-    return LambdaSettings()
+    return LambdaSettings()  # type: ignore
 
 
 @pytest.mark.parametrize("fail_download", (True, False))
