@@ -5,6 +5,7 @@ from typing import Any
 import boto3
 import botocore.exceptions
 import sentry_sdk
+from sentry_sdk.integrations.serverless import serverless_function
 
 from flow.db import Storage
 from flow.models import LambdaSettings, Settings
@@ -55,6 +56,7 @@ def db_from_s3(settings: LambdaSettings):
     )
 
 
+@serverless_function
 def lambda_handler(event: Any, handler: Any):
     settings = LambdaSettings()  # type: ignore
     with db_from_s3(settings):
