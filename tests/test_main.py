@@ -160,5 +160,5 @@ def test_lambda_handler(
     monkeypatch.setattr(boto3, "client", MyClient)
     monkeypatch.setattr(flow.main, "main", main)
 
-    lambda_handler(None, None)
+    lambda_handler(None, None)  # type: ignore
     assert calls == ["init", "download", "main", "upload"]
