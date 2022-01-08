@@ -74,7 +74,3 @@ def _parse_wall(response: WallGetResponse):
 def get_wall(*, token: str, owner_id: int):
     response = VKAPI(token).get_wall(owner_id=owner_id)
     return _parse_wall(response)
-
-
-if __name__ == "__main__":
-    print(get_wall(token=Settings(".env").vk_token, owner_id=333528605)[-1])  # type: ignore
