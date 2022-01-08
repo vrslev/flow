@@ -1,7 +1,7 @@
 import re
 import textwrap
 
-from base_telegram_bot import BaseTelegramBot
+from base_telegram_bot import BaseTelegramBot, TelegramBotError
 from pydantic import HttpUrl
 
 from flow.models import Post
@@ -37,13 +37,20 @@ class Bot(BaseTelegramBot):
             )
 
     def send_photo_group(self, *, chat_id: int, photo_urls: list[HttpUrl]):
-        self.make_request(
-            method="/sendMediaGroup",
-            json={
-                "chat_id": chat_id,
-                "media": [{"type": "photo", "media": url} for url in photo_urls],
-            },
-        )
+        data = {
+            "chat_id": chat_id,
+            "media": [{"type": "photo", "media": url} for url in photo_urls],
+        }
+        # Sometimes this endpoint fails for with 400 Bad Request.
+        # It is irrelevant to the _request_ though.
+        # So, retry three times or give up.
+        for _ in range(3):
+            try:
+                self.make_request(method="/sendMediaGroup", json=data)
+                return
+            except TelegramBotError as exc:
+                if exc.response.status_code != 400:
+                    raise
 
 
 def publish_post(*, token: str, chat_id: int, post: Post):
