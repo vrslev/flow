@@ -1,11 +1,9 @@
-from copy import copy
 from datetime import datetime, timedelta
 from typing import Any
-from urllib.parse import urlencode
 
 import pytest
-import responses
 
+import flow.vk
 from flow.models import Post
 from flow.vk import (
     VKAPI,
@@ -193,24 +191,19 @@ mock_response = {
 }
 
 
-@responses.activate
-def test_get_wall():
-    vk = VKAPI("my_vk_token")
-    responses.add(
-        method=responses.GET,
-        url=f"{vk.endpoint}/method/wall.get",
-        json=mock_response,
-        match=[
-            responses.matchers.query_string_matcher(  # type: ignore
-                urlencode(
-                    {
-                        "access_token": vk.token,
-                        "v": vk.api_version,
-                        "lang": vk.lang,
-                        "owner_id": 1,
-                    }
-                )
+def test_get_wall(monkeypatch: pytest.MonkeyPatch):
+    class CustomVKAPI(VKAPI):
+        def get_wall(self, *, owner_id: int) -> Any:
+            assert owner_id == 1
+
+            class MockResponse:
+                def json(self):
+                    return mock_response
+
+            return self.parse_response(
+                response=MockResponse(),  # type: ignore
+                model=WallGetResponse,  # type: ignore
             )
-        ],
-    )
-    get_wall(token=copy(vk.token), owner_id=1)
+
+    monkeypatch.setattr(flow.vk, "VKAPI", CustomVKAPI)
+    get_wall(token="my_vk_token", owner_id=1)
