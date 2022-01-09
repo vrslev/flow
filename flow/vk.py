@@ -5,7 +5,7 @@ from base_vk_api import BaseVKAPI
 from pydantic import HttpUrl
 from sqlmodel import SQLModel
 
-from flow.models import Post, Settings
+from flow.models import Post
 
 
 class VKAPI(BaseVKAPI):
