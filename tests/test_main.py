@@ -15,22 +15,6 @@ from flow.main import _init_sentry, lambda_handler, main
 from flow.models import LambdaSettings, Post, PostDB, Settings
 
 
-def test_sentry_initialised(monkeypatch: pytest.MonkeyPatch, settings: Settings):
-    m = Mock()
-    monkeypatch.setattr(sentry_sdk, "init", m)
-
-    settings.sentry_dsn = "mydsn"
-    _init_sentry(settings)
-    assert m.call_args[0][0] == "mydsn"
-
-
-def test_sentry_not_initialised(monkeypatch: pytest.MonkeyPatch, settings: Settings):
-    m = Mock()
-    monkeypatch.setattr(sentry_sdk, "init", m)
-    _init_sentry(settings)
-    m.assert_not_called()
-
-
 @pytest.fixture
 def settings(monkeypatch: pytest.MonkeyPatch, tmpdir: py.path.local):
     db_path = os.path.join(tmpdir, "database.db")
@@ -41,6 +25,20 @@ def settings(monkeypatch: pytest.MonkeyPatch, tmpdir: py.path.local):
     monkeypatch.setenv("TG_CHAT_ID", "2")
     monkeypatch.setenv("DB_PATH", db_path)
     return Settings()  # type: ignore
+
+
+def test_sentry_initialised(monkeypatch: pytest.MonkeyPatch):
+    m = Mock()
+    monkeypatch.setattr(sentry_sdk, "init", m)
+    _init_sentry("mydsn")
+    assert m.call_args[0][0] == "mydsn"
+
+
+def test_sentry_not_initialised(monkeypatch: pytest.MonkeyPatch):
+    m = Mock()
+    monkeypatch.setattr(sentry_sdk, "init", m)
+    _init_sentry(None)
+    m.assert_not_called()
 
 
 def test_main_main(monkeypatch: pytest.MonkeyPatch, settings: Settings):

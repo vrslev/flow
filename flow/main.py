@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 import contextlib
-import functools
-import json
 from typing import Any
 
 import boto3
@@ -16,29 +14,9 @@ from flow.tg import publish_post
 from flow.vk import get_wall
 
 
-def _mask_settings_values(event_str: str, settings_values: list[str]):
-    for setting in settings_values:
-        event_str = event_str.replace(setting, "[Filtered]")
-    return event_str
-
-
-def _before_send_sentry_event_handler(
-    event: dict[str, Any], hint: dict[str, Any], settings_values: list[str]
-) -> dict[str, Any]:
-    try:
-        return json.loads(_mask_settings_values(json.dumps(event), settings_values))
-    except Exception:
-        return event
-
-
-def _init_sentry(settings: Settings | LambdaSettings):
-    if settings.sentry_dsn is None:
-        return
-    before_send = functools.partial(
-        _before_send_sentry_event_handler,
-        settings_values=list(settings.dict().values()),
-    )
-    sentry_sdk.init(settings.sentry_dsn, before_send=before_send)
+def _init_sentry(dsn: str | None):
+    if dsn is not None:
+        sentry_sdk.init(dsn)
 
 
 def main(settings: Settings) -> int:
@@ -79,12 +57,12 @@ def db_from_s3(settings: LambdaSettings):
 @serverless_function
 def lambda_handler(event: Any, handler: Any):
     settings = LambdaSettings()  # type: ignore
-    _init_sentry(settings)
+    _init_sentry(settings.sentry_dsn)
     with db_from_s3(settings):
         main(settings)
 
 
 if __name__ == "__main__":
     settings = Settings(".env")  # type: ignore
-    _init_sentry(settings)
+    _init_sentry(settings.sentry_dsn)
     raise SystemExit(main(settings))
