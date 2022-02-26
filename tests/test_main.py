@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+from unittest.mock import Mock
 
 import boto3
 import botocore.exceptions
@@ -14,33 +15,20 @@ from flow.main import _init_sentry, lambda_handler, main
 from flow.models import LambdaSettings, Post, PostDB, Settings
 
 
-def test_sentry_initialised(monkeypatch: pytest.MonkeyPatch):
-    called = False
+def test_sentry_initialised(monkeypatch: pytest.MonkeyPatch, settings: Settings):
+    m = Mock()
+    monkeypatch.setattr(sentry_sdk, "init", m)
 
-    def init(dsn: str):
-        nonlocal called
-        called = True
-        assert dsn == "mydsn"
-
-    monkeypatch.setattr(sentry_sdk, "init", init)
-    monkeypatch.setenv("SENTRY_DSN", "mydsn")
-
-    _init_sentry()
-    assert called
+    settings.sentry_dsn = "mydsn"
+    _init_sentry(settings)
+    assert m.call_args[0][0] == "mydsn"
 
 
-def test_sentry_not_initialised(monkeypatch: pytest.MonkeyPatch):
-    called = False
-
-    def init(dsn: str):
-        nonlocal called
-        called = True  # pragma: no cover
-        assert dsn == "mydsn"  # pragma: no cover
-
-    monkeypatch.setattr(sentry_sdk, "init", init)
-
-    _init_sentry()
-    assert not called
+def test_sentry_not_initialised(monkeypatch: pytest.MonkeyPatch, settings: Settings):
+    m = Mock()
+    monkeypatch.setattr(sentry_sdk, "init", m)
+    _init_sentry(settings)
+    m.assert_not_called()
 
 
 @pytest.fixture

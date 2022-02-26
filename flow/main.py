@@ -17,9 +17,8 @@ from flow.vk import get_wall
 
 
 def _mask_settings_values(event_str: str, settings_values: list[str]):
-    mask = "[Filtered]"
     for setting in settings_values:
-        event_str = event_str.replace(str(setting), mask)
+        event_str = event_str.replace(setting, "[Filtered]")
     return event_str
 
 
