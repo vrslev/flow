@@ -1,6 +1,7 @@
 import re
 import textwrap
 
+import markupsafe
 from base_telegram_bot import BaseTelegramBot, TelegramBotError
 from pydantic import HttpUrl
 
@@ -19,6 +20,10 @@ def _format_internal_vk_links(text: str):
     return text
 
 
+def _strip_html_tags(text: str) -> str:
+    return markupsafe.Markup(text).striptags()
+
+
 class Bot(BaseTelegramBot):
     def send_message(self, *, chat_id: int, text: str):
         for chunk in textwrap.wrap(
@@ -26,12 +31,13 @@ class Bot(BaseTelegramBot):
             width=4096,  # MAX_MESSAGE_LENGTH, taken from python-telegram-bot constants
             replace_whitespace=False,
         ):
-            formatted_chunk = _format_internal_vk_links(chunk)
+            chunk = _strip_html_tags(chunk)
+            chunk = _format_internal_vk_links(chunk)
             self.make_request(
                 method="/sendMessage",
                 json={
                     "chat_id": chat_id,
-                    "text": formatted_chunk,
+                    "text": chunk,
                     "parse_mode": "HTML",
                 },
             )

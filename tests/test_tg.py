@@ -8,7 +8,7 @@ from base_telegram_bot import TelegramBotError
 
 import flow.tg
 from flow.models import Post
-from flow.tg import Bot, _format_internal_vk_links, publish_post
+from flow.tg import Bot, _format_internal_vk_links, _strip_html_tags, publish_post
 
 
 @pytest.mark.parametrize(
@@ -23,11 +23,22 @@ from flow.tg import Bot, _format_internal_vk_links, publish_post
             "[https://vk.com/id1|Pavel Durov]",
             '<a href="https://vk.com/id1">Pavel Durov</a>',
         ),
-        ("https://vk.com/id1 — Pavel Durov", "https://vk.com/id1 — Pavel Durov"),
+        ("https://vk.com/id1 — Pavel Durov", "https://vk.com/id1 — Pavel Durov"),
     ),
 )
 def test_format_internal_vk_links(v: str, expected: str):
     assert _format_internal_vk_links(v) == expected
+
+
+@pytest.mark.parametrize(
+    ("v", "expected"),
+    (
+        ("Some text here <...> woah! <html> </html>", "Some text here woah!"),
+        ("Just text", "Just text"),
+    ),
+)
+def test_strip_html_tags(v: str, expected: str):
+    assert _strip_html_tags(v) == expected
 
 
 @pytest.fixture
@@ -50,19 +61,28 @@ def test_bot_send_message(monkeypatch: pytest.MonkeyPatch, bot: Bot):
             assert len(json["text"]) == 1
         count += 1
 
-    called = False
+    called_strip = False
+    called_format = False
 
-    def mock_format_internal_vk_links(text: str):
-        nonlocal called
-        called = True
+    def mock_strip_html_tags(text: str):
+        nonlocal called_strip
+        called_strip = True
         return text
 
+    def mock_format_internal_vk_links(text: str):
+        nonlocal called_format
+        called_format = True
+        return text
+
+    monkeypatch.setattr(flow.tg, "_strip_html_tags", mock_strip_html_tags)
     monkeypatch.setattr(
         flow.tg, "_format_internal_vk_links", mock_format_internal_vk_links
     )
+
     bot.make_request = make_request
     bot.send_message(chat_id=1, text="t" * 4097)
-    assert called
+    assert called_strip
+    assert called_format
 
 
 def test_bot_send_media_group_200_ok(bot: Bot):
