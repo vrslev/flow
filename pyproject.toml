@@ -14,7 +14,7 @@ base-telegram-bot = "0.0.1"
 base-vk-api = "0.0.1"
 python-dotenv = "^0.19.2"
 boto3 = "^1.21.13"
-sentry-sdk = "^1.5.6"
+sentry-sdk = "^1.5.7"
 MarkupSafe = "^2.1.0"
 
 [tool.poetry.dev-dependencies]
