@@ -7,7 +7,7 @@ import botocore.exceptions
 import py
 import pytest
 import sentry_sdk
-from sqlmodel import Session, select
+from sqlmodel import Session, select  # pyright: ignore[reportUnknownVariableType]
 
 import flow.main
 from flow.db import Storage
