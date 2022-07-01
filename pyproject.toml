@@ -9,7 +9,7 @@ license = "MIT"
 [tool.poetry.dependencies]
 python = "^3.9"
 sqlmodel = "^0.0.6"
-requests = "^2.26.0"
+requests = "^2.28.1"
 base-telegram-bot = "0.0.2"
 base-vk-api = "0.0.2"
 python-dotenv = "^0.20.0"
