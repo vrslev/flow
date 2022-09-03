@@ -8,22 +8,22 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.9"
-sqlmodel = "^0.0.6"
+sqlmodel = "^0.0.8"
 requests = "^2.28.1"
 base-telegram-bot = "0.0.2"
 base-vk-api = "0.0.2"
 python-dotenv = "^0.20.0"
-boto3 = "^1.24.42"
-sentry-sdk = "^1.9.0"
+boto3 = "^1.24.64"
+sentry-sdk = "^1.9.6"
 MarkupSafe = "^2.1.1"
 
 [tool.poetry.dev-dependencies]
-black = "22.6.0"
+black = "22.8.0"
 pre-commit = "2.20.0"
 pytest = "7.1.2"
 pytest-cov = "3.0.0"
 pytest-randomly = "3.12.0"
-boto3-stubs = {extras = ["s3"], version = "^1.24.42"}
+boto3-stubs = {extras = ["s3"], version = "^1.24.64"}
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
